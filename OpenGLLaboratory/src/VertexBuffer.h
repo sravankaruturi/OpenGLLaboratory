@@ -1,21 +1,25 @@
 ﻿#pragma once
 
-class VertexBuffer
-{
+namespace olab {
 
-private:
-	unsigned int rendererId;
-
-public:
-	unsigned GetRendererId() const
+	class VertexBuffer
 	{
-		return rendererId;
-	}
 
-	explicit VertexBuffer(const void * _data, const size_t _size);
-	~VertexBuffer();
+	private:
+		unsigned int rendererId;
 
-	void Bind() const;
-	static void UnBind();
-	
-};
+	public:
+		unsigned GetRendererId() const
+		{
+			return rendererId;
+		}
+
+		explicit VertexBuffer(const void * _data, const size_t _size);
+		~VertexBuffer();
+
+		void Bind() const;
+		static void UnBind();
+
+	};
+
+}

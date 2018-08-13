@@ -41,10 +41,10 @@ int main(int _argc, char* _argv[])
 			0.5f,	-0.5f
 		};
 
-		
-		VertexArray va;
-		VertexBuffer vb(positions, 6 * sizeof(float));
-		VertexBufferLayout layout;
+
+		olab::VertexArray va;
+		olab::VertexBuffer vb(positions, 6 * sizeof(float));
+		olab::VertexBufferLayout layout;
 		layout.Push<float>(2);
 		va.AddBuffer(vb, layout);
 
@@ -63,6 +63,7 @@ int main(int _argc, char* _argv[])
 			GLCall(glUseProgram(test.shaderId));
 			va.Bind();
 			GLCall(glBindBuffer(GL_ARRAY_BUFFER, vb.GetRendererId()));
+			test.setVec3("u_Colour", glm::vec3(glm::cos(glfwGetTime()), 0.2f, 0.3f));
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 3));
 
 			/* Swap front and back buffers */

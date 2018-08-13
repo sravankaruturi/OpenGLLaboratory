@@ -5,11 +5,11 @@
 #include <GL/glew.h>
 #endif
 
-#ifndef ASSERT(x)
+#ifndef ASSERT
 #define ASSERT(x) if(!(x)) __debugbreak()
 #endif // !ASSERT(x)
 
-#ifndef GLCall(x)
+#ifndef GLCall
 #define GLCall(x) GLClearError();\
 	x;\
 	ASSERT(GLLogCall(#x, __FILE__, __LINE__))

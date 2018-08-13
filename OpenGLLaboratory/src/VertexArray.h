@@ -1,23 +1,27 @@
 ﻿#pragma once
 
-class VertexBuffer;
-class VertexBufferLayout;
+namespace olab {
 
-class VertexArray
-{
+	class VertexBuffer;
+	class VertexBufferLayout;
 
-private:
+	class VertexArray
+	{
 
-	unsigned int rendererId;
+	private:
 
-public:
+		unsigned int rendererId;
 
-	VertexArray();
-	~VertexArray();
+	public:
 
-	void AddBuffer(const VertexBuffer& _vb, const VertexBufferLayout& _layout);
+		VertexArray();
+		~VertexArray();
 
-	void Bind() const;
-	static void UnBind();
-	
-};
+		void AddBuffer(const VertexBuffer& _vb, const VertexBufferLayout& _layout);
+
+		void Bind() const;
+		static void UnBind();
+
+	};
+
+}
