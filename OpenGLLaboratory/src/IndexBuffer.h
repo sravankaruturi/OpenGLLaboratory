@@ -1,19 +1,23 @@
 ﻿#pragma once
 
-class IndexBuffer
-{
+namespace olab {
 
-private:
-	unsigned int rendererId;
-	unsigned int count;
+	class IndexBuffer
+	{
 
-public:
-	explicit IndexBuffer(const int * _data, const unsigned int _count);
-	~IndexBuffer();
+	private:
+		unsigned int rendererId;
+		unsigned int count;
 
-	void Bind() const;
-	static void UnBind();
-	
-	unsigned int Count() const { return count; }
+	public:
+		explicit IndexBuffer(const unsigned int * _data, const unsigned int _count);
+		~IndexBuffer();
 
-};
+		void Bind() const;
+		static void UnBind();
+
+		unsigned int Count() const { return count; }
+
+	};
+
+}

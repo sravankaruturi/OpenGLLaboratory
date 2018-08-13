@@ -5,6 +5,7 @@
 #include "VertexBuffer.h"
 #include "VertexArray.h"
 #include "VertexBufferLayout.h"
+#include "IndexBuffer.h"
 
 #include <iostream>
 
@@ -31,6 +32,8 @@ int main(int _argc, char* _argv[])
 		return -1;
 	}
 
+	olab::Renderer renderer;
+
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
 	{
@@ -41,6 +44,10 @@ int main(int _argc, char* _argv[])
 			0.5f,	-0.5f
 		};
 
+		const unsigned int indices[3] = {
+			0, 1, 2
+		};
+
 
 		olab::VertexArray va;
 		olab::VertexBuffer vb(positions, 6 * sizeof(float));
@@ -48,24 +55,24 @@ int main(int _argc, char* _argv[])
 		layout.Push<float>(2);
 		va.AddBuffer(vb, layout);
 
+		olab::IndexBuffer ib(indices, 3);
+
 		//olab::Shader test = olab::Shader("Assets/Shaders/Basic.vert", "Assets/Shaders/Basic.frag");
 		olab::Shader test = olab::Shader("Assets/Shaders/Basic.shader");
 
-		GLCall(glUseProgram(test.shaderId));
+
 
 		/* Loop until the user closes the window */
 		while (!glfwWindowShouldClose(window))
 		{
 
-			/* Render here */
-			GLCall(glClear(GL_COLOR_BUFFER_BIT));
+			olab::Renderer::Clear();
 
-			GLCall(glUseProgram(test.shaderId));
-			va.Bind();
-			GLCall(glBindBuffer(GL_ARRAY_BUFFER, vb.GetRendererId()));
+			test.use();
 			test.setVec3("u_Colour", glm::vec3(glm::cos(glfwGetTime()), 0.2f, 0.3f));
-			GLCall(glDrawArrays(GL_TRIANGLES, 0, 3));
 
+			renderer.Draw(va, ib, test);
+			
 			/* Swap front and back buffers */
 			glfwSwapBuffers(window);
 

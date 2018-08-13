@@ -48,7 +48,7 @@ namespace olab
 		/**
 		* \brief Use the Program.
 		*/
-		void use()
+		void use() const
 		{
 			GLCall(glUseProgram(shaderId));
 		}
