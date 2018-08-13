@@ -1,7 +1,7 @@
-#define GLEW_STATIC
-#include <GL/glew.h>
+#pragma once
+#include "OGL.h"
 #include <GLFW/glfw3.h>
-#include <iostream>
+#include "Shader.h"
 
 int main(int _argc, char* _argv[])
 {
@@ -28,18 +28,41 @@ int main(int _argc, char* _argv[])
 
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
+	float positions[6] = {
+		-0.5f,	-0.5f,
+		0.0f,	 0.5f,
+		0.5f,	-0.5f
+	};
+
+	unsigned int vao, vbo;
+
+	GLCall(glGenVertexArrays(1, &vao));
+	GLCall(glBindVertexArray(vao));
+
+	GLCall(glGenBuffers(1, &vbo));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+	GLCall(glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW));
+
+	// This should always be after the Bind buffer data for some reason..
+	GLCall(glEnableVertexAttribArray(0));
+	GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0));
+
+	//olab::Shader test = olab::Shader("Assets/Shaders/Basic.vert", "Assets/Shaders/Basic.frag");
+	olab::Shader test = olab::Shader("Assets/Shaders/Basic.shader");
+	
+	GLCall(glUseProgram(test.shaderId));
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
 
 		/* Render here */
-		glClear(GL_COLOR_BUFFER_BIT);
+		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
-		glBegin(GL_TRIANGLES);
-		glVertex2f(-0.5f, -0.5f);
-		glVertex2f(0.0f, 0.5f);
-		glVertex2f(0.5f, -0.5f);
-		glEnd();
+		GLCall(glUseProgram(test.shaderId));
+		GLCall(glBindVertexArray(vao));
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+		GLCall(glDrawArrays(GL_TRIANGLES, 0, 3));
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);

@@ -132,6 +132,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\Shader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Shaders\Basic.frag" />
+    <None Include="Assets\Shaders\Basic.shader" />
+    <None Include="Assets\Shaders\Basic.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\OGL.h" />
+    <ClInclude Include="src\Shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
