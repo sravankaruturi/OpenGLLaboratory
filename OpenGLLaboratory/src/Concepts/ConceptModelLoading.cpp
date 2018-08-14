@@ -38,9 +38,9 @@ namespace olab
 				vertices.push_back(_mesh->mVertices[i].y);
 				vertices.push_back(_mesh->mVertices[i].z);
 
-				vertices.push_back(_mesh->mNormals[i].x);
-				vertices.push_back(_mesh->mNormals[i].y);
-				vertices.push_back(_mesh->mNormals[i].z);
+				//vertices.push_back(_mesh->mNormals[i].x);
+				//vertices.push_back(_mesh->mNormals[i].y);
+				//vertices.push_back(_mesh->mNormals[i].z);
 
 				vertices.push_back(tex_x);
 				vertices.push_back(tex_y);
@@ -58,10 +58,12 @@ namespace olab
 			aiMaterial* material = _scene->mMaterials[_mesh->mMaterialIndex];
 			const std::vector<Texture *> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 
-			VertexBuffer * vb = new VertexBuffer(&vertices[0], 8 * sizeof(float));
+			const unsigned int __temp = sizeof(float) * vertices.size();
+
+			VertexBuffer * vb = new VertexBuffer(&vertices[0], __temp);
 			VertexBufferLayout vbl;
 			vbl.Push<float>(3);
-			vbl.Push<float>(3);
+			//vbl.Push<float>(3);
 			vbl.Push<float>(2);
 
 			return_mesh.vb = vb;
@@ -99,7 +101,7 @@ namespace olab
 				mat->GetTexture(type, i, &str);
 				// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
 				Texture * texture;
-				texture = new Texture((std::string("Assets/Textures/nanosuit/") + std::string(str.C_Str())));
+				texture = new Texture((std::string("Assets/Models/nanosuit/") + std::string(str.C_Str())));
 				textures.push_back(texture);
 			}
 
@@ -109,7 +111,7 @@ namespace olab
 		ConceptModelLoading::ConceptModelLoading()
 		{
 
-			std::string path = "Assets/Models/nanosuit/nanosuit.obj";
+			std::string path = "C:/dev/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/nanosuit/nanosuit.obj";
 
 			Assimp::Importer import;
 			const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -126,7 +128,7 @@ namespace olab
 			Shader * shader = new Shader("Assets/Shaders/Concept_mvp.shader");
 
 			shader->use();
-			shader->setMat4("u_ModelMatrix", glm::mat4(1.0));
+			shader->setMat4("u_ModelMatrix", glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
 			shader->setMat4("u_ViewMatrix", glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 			shader->setMat4("u_ProjectionMatrix", glm::perspective(glm::radians(45.0f), 16.0f/9.0f, 0.1f, 100.0f));
 
@@ -139,17 +141,28 @@ namespace olab
 		ConceptModelLoading::~ConceptModelLoading()
 		{
 			// Delete all the memory allocated for each mesh.
+			for (auto& it : meshes) {
+				delete it.ib;
+				for (auto t_it : it.textures) {
+					delete t_it;
+				}
+				delete it.va;
+				delete it.vb;
+			}
+
+			// We only have one instance of it.
+			delete meshes[0].shader;
 		}
 
 		void ConceptModelLoading::OnRender(const Renderer& _renderer)
 		{
 			for (const auto& it : meshes)
 			{
-
+				it.shader->use();
 				it.shader->setInt("u_Texture", 0);
 				if ( it.textures.size() > 0)
 				{
-					it.textures[0]->Bind();
+					it.textures[0]->Bind(0);
 				}
 
 				if ( nullptr == it.va || nullptr == it.ib || nullptr == it.shader)

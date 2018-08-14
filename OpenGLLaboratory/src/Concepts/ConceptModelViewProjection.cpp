@@ -9,7 +9,7 @@ namespace olab {
 
 
 		ConceptModelViewProjection::ConceptModelViewProjection()
-			: vb(positions, sizeof(positions)), 
+			: vb(positions, 180 * sizeof(float)), 
 			ib(indices, sizeof(indices)/sizeof(float)), 
 			mvpShader("Assets/Shaders/Concept_mvp.shader"), 
 			texture("Assets/Textures/container.jpg"), 

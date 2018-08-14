@@ -14,7 +14,7 @@ namespace olab {
 			return rendererId;
 		}
 
-		explicit VertexBuffer(const void * _data, const size_t _size);
+		explicit VertexBuffer(const void * _data, unsigned int _size);
 		~VertexBuffer();
 
 		void Bind() const;

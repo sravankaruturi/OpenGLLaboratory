@@ -3,7 +3,7 @@
 
 namespace olab {
 
-	VertexBuffer::VertexBuffer(const void * _data, const size_t _size)
+	VertexBuffer::VertexBuffer(const void * _data, unsigned int _size)
 	{
 		GLCall(glGenBuffers(1, &rendererId));
 		GLCall(glBindBuffer(GL_ARRAY_BUFFER, rendererId));

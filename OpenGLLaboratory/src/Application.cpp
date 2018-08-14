@@ -12,6 +12,10 @@
 #include "Concepts/ConceptModelViewProjection.h"
 #include "Concepts/ConceptModelLoading.h"
 
+#define _CRTDBG_MAP_ALLOC  
+#include <stdlib.h>  
+#include <crtdbg.h>  
+
 int width =		1600;
 int height =	900;
 
@@ -19,6 +23,8 @@ void window_resize(GLFWwindow * _window, int _width, int _height);
 
 int main(int _argc, char* _argv[])
 {
+
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	/* Initialize the library */
 	if (!glfwInit())
