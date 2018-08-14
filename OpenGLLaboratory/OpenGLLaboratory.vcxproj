@@ -137,6 +137,8 @@
     <ClCompile Include="external_files\ImGUI\imgui_impl_glfw.cpp" />
     <ClCompile Include="external_files\ImGUI\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\Concepts\Concept.cpp" />
+    <ClCompile Include="src\Concepts\ConceptClearColour.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
@@ -159,6 +161,8 @@
     <ClInclude Include="external_files\ImGUI\stb_textedit.h" />
     <ClInclude Include="external_files\ImGUI\stb_truetype.h" />
     <ClInclude Include="external_files\stb\stb_image.h" />
+    <ClInclude Include="src\Concepts\Concept.h" />
+    <ClInclude Include="src\Concepts\ConceptClearColour.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />

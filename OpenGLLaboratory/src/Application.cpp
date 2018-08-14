@@ -16,6 +16,8 @@
 #include "../external_files/ImGUI/imgui_impl_glfw.h"
 #include "../external_files/ImGUI/imgui_impl_opengl3.h"
 
+#include "Concepts/ConceptClearColour.h"	
+
 int main(int _argc, char* _argv[])
 {
 	/* Initialize the library */
@@ -53,54 +55,17 @@ int main(int _argc, char* _argv[])
 	// Setup style
 	ImGui::StyleColorsDark();
 
+	olab::concepts::Concept * current_concept = nullptr;
+	olab::concepts::ConceptsMenu * concepts_menu = new olab::concepts::ConceptsMenu(current_concept);
+
+	concepts_menu->RegisterConcept<olab::concepts::ConceptClearColour>("Clear Colour");
+
+	// We Draw the Current Test and we want to start with the Menu usually.
+	current_concept = concepts_menu;
 
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
 	{
-
-		float positions[] = {
-			-0.5f,	-0.5f,	0.0f,	0.0f,
-			0.5f,	-0.5f,	1.0f,	0.0f,
-			0.5f,	0.5f,	1.0f,	1.0f,
-			-0.5f,	0.5f,	0.0f,	1.0f
-		};
-
-		const unsigned int indices[] = {
-			0, 1, 2, 
-			2, 3, 0
-		};
-
-
-		olab::VertexArray va;
-		olab::VertexBuffer vb(positions, sizeof(positions));
-		olab::VertexBufferLayout layout;
-		layout.Push<float>(2);
-		layout.Push<float>(2);
-		va.AddBuffer(vb, layout);
-
-		olab::IndexBuffer ib(indices, 6);
-
-		glm::vec3 translation(1.0f, 0.0f, 0.0f);
-
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, translation);
-
-		const glm::mat4 projection_matrix = glm::ortho(-8.0f, 8.0f, -4.5f, 4.5f, -1.0f, 1.0f);
-
-		//olab::Shader test = olab::Shader("Assets/Shaders/Basic.vert", "Assets/Shaders/Basic.frag");
-		olab::Shader test = olab::Shader("Assets/Shaders/Basic.shader");
-
-		olab::Texture texture("Assets/Textures/iris_texture.png");
-		texture.Bind();
-
-		test.use();
-		test.setInt("u_Texture", 0);
-		test.setMat4("u_ProjectionMatrix", projection_matrix);
-
-
-		bool show_demo_window = true;
-		bool show_another_window = false;
-		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 		/* Loop until the user closes the window */
 		while (!glfwWindowShouldClose(window))
@@ -112,20 +77,17 @@ int main(int _argc, char* _argv[])
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
 
-			{
-
-				ImGui::SliderFloat3("float", glm::value_ptr(translation), -5.0f, 5.0f);
-
-				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			if (current_concept) {
+				current_concept->OnUpdate(0.0f);
+				current_concept->OnRender();
+				ImGui::Begin("Concepts");
+				if (current_concept != concepts_menu && ImGui::Button("<--")) {
+					delete current_concept;
+					current_concept = concepts_menu;
+				}
+				current_concept->OnImGuiRender();
+				ImGui::End();
 			}
-
-			model = glm::translate(glm::mat4(1.0f), translation);
-
-			test.use();
-			test.setMat4("u_ModelMatrix", model);
-			//test.setVec3("u_Colour", glm::vec3(glm::cos(glfwGetTime()), 0.2f, 0.3f));
-			//test.setInt("u_Texture", 0);
-			renderer.Draw(va, ib, test);
 			
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -136,6 +98,12 @@ int main(int _argc, char* _argv[])
 			/* Poll for and process events */
 			glfwPollEvents();
 		}
+
+		// If we quit while not at the main menu, we need to delete both the test and the menu.
+		if (concepts_menu != current_concept) {
+			delete current_concept;
+		}
+		delete concepts_menu;
 
 	}
 
