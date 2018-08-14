@@ -16,7 +16,7 @@ namespace olab {
 			~ConceptClearColour();
 
 			void OnUpdate(float _deltaTime) override;
-			void OnRender() override;
+			void OnRender(const Renderer& _renderer) override;
 			void OnImGuiRender() override;
 		};
 

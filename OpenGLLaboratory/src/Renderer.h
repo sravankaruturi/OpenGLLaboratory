@@ -29,7 +29,9 @@ namespace olab {
 
 	public:
 
-		void Draw(const VertexArray& _va, const IndexBuffer& _ib, const Shader& _shader);
+		Renderer();
+
+		void Draw(const VertexArray& _va, const IndexBuffer& _ib, const Shader& _shader) const;
 
 		static void Clear();
 

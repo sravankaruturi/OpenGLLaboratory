@@ -23,7 +23,7 @@ namespace olab {
 
 		}
 
-		void ConceptClearColour::OnRender()
+		void ConceptClearColour::OnRender(const Renderer& _renderer)
 		{
 			GLCall(glClearColor(colour[0], colour[1], colour[2], colour[3]));
 			GLCall(glClear(GL_COLOR_BUFFER_BIT));

@@ -1,31 +1,30 @@
 #include "Renderer.h"
 #include <GLFW/glfw3.h>
 #include "Shader.h"
-
-#include "VertexBuffer.h"
-#include "VertexArray.h"
-#include "VertexBufferLayout.h"
-#include "IndexBuffer.h"
-
 #include <iostream>
 #include "Texture.h"
-
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "../external_files/ImGUI/imgui.h"
 #include "../external_files/ImGUI/imgui_impl_glfw.h"
 #include "../external_files/ImGUI/imgui_impl_opengl3.h"
 
 #include "Concepts/ConceptClearColour.h"	
+#include "Concepts/ConceptModelViewProjection.h"
+
+int width =		1600;
+int height =	900;
+
+void window_resize(GLFWwindow * _window, int _width, int _height);
 
 int main(int _argc, char* _argv[])
 {
+
 	/* Initialize the library */
 	if (!glfwInit())
 		return -1;
 
 	/* Create a windowed mode window and its OpenGL context */
-	GLFWwindow * window = glfwCreateWindow(800, 450, "Hello World", NULL, NULL);
+	GLFWwindow * window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -35,16 +34,15 @@ int main(int _argc, char* _argv[])
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
 
+	glfwSetWindowSizeCallback(window, window_resize);
+
 	/* Load Glad */
 	if (GLEW_OK != glewInit()) {
 		std::cout << "Failed to Init Glew" << std::endl;
 		return -1;
 	}
 
-	GLCall(glEnable(GL_BLEND));
-	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
-	olab::Renderer renderer;
+	const olab::Renderer renderer;
 
 	/* ImGui setup */
 	ImGui::CreateContext();
@@ -59,6 +57,7 @@ int main(int _argc, char* _argv[])
 	olab::concepts::ConceptsMenu * concepts_menu = new olab::concepts::ConceptsMenu(current_concept);
 
 	concepts_menu->RegisterConcept<olab::concepts::ConceptClearColour>("Clear Colour");
+	concepts_menu->RegisterConcept<olab::concepts::ConceptModelViewProjection>("Model View Projection Matrices");
 
 	// We Draw the Current Test and we want to start with the Menu usually.
 	current_concept = concepts_menu;
@@ -79,7 +78,7 @@ int main(int _argc, char* _argv[])
 
 			if (current_concept) {
 				current_concept->OnUpdate(0.0f);
-				current_concept->OnRender();
+				current_concept->OnRender(renderer);
 				ImGui::Begin("Concepts");
 				if (current_concept != concepts_menu && ImGui::Button("<--")) {
 					delete current_concept;
@@ -114,4 +113,10 @@ int main(int _argc, char* _argv[])
 	glfwTerminate();
 	return 0;
 
+}
+
+void window_resize(GLFWwindow * _window, int _width, int _height) {
+	width = _width;
+	height = _height;
+	glViewport(0, 0, _width, _height);
 }

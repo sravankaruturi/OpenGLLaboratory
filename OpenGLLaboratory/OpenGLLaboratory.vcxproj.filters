@@ -57,11 +57,15 @@
     <ClCompile Include="src\Concepts\ConceptClearColour.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Concepts\ConceptModelViewProjection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\Basic.shader" />
     <None Include="Assets\Shaders\Basic.vert" />
     <None Include="Assets\Shaders\Basic.frag" />
+    <None Include="Assets\Shaders\Concept_mvp.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Shader.h">
@@ -116,6 +120,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Concepts\ConceptClearColour.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Concepts\ConceptModelViewProjection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

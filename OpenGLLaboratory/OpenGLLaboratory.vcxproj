@@ -139,6 +139,7 @@
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Concepts\Concept.cpp" />
     <ClCompile Include="src\Concepts\ConceptClearColour.cpp" />
+    <ClCompile Include="src\Concepts\ConceptModelViewProjection.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
@@ -150,6 +151,7 @@
     <None Include="Assets\Shaders\Basic.frag" />
     <None Include="Assets\Shaders\Basic.shader" />
     <None Include="Assets\Shaders\Basic.vert" />
+    <None Include="Assets\Shaders\Concept_mvp.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external_files\ImGUI\imconfig.h" />
@@ -163,6 +165,7 @@
     <ClInclude Include="external_files\stb\stb_image.h" />
     <ClInclude Include="src\Concepts\Concept.h" />
     <ClInclude Include="src\Concepts\ConceptClearColour.h" />
+    <ClInclude Include="src\Concepts\ConceptModelViewProjection.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />

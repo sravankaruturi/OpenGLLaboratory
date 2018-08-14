@@ -20,7 +20,12 @@ bool GLLogCall(const char * _function, const char * _file, int _line) {
 
 namespace olab {
 
-	void Renderer::Draw(const VertexArray& _va, const IndexBuffer& _ib, const Shader& _shader) {
+	Renderer::Renderer()
+	{
+		glEnable(GL_DEPTH_TEST);
+	}
+
+	void Renderer::Draw(const VertexArray& _va, const IndexBuffer& _ib, const Shader& _shader) const {
 
 		_shader.use();
 		_va.Bind();
@@ -31,6 +36,6 @@ namespace olab {
 	void Renderer::Clear()
 	{
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
-		GLCall(glClear(GL_COLOR_BUFFER_BIT));
+		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 	}
 }

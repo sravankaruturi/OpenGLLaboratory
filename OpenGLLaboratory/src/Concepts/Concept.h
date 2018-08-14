@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include "../Renderer.h"
 
 namespace olab {
 	namespace concepts {
@@ -15,7 +16,7 @@ namespace olab {
 			virtual ~Concept() = default;
 
 			virtual void OnUpdate(float _deltaTime) {}
-			virtual void OnRender() {}
+			virtual void OnRender(const Renderer& _renderer) {}
 			virtual void OnImGuiRender() {}
 		};
 
