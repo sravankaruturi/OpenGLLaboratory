@@ -131,6 +131,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="external_files\ImGUI\imgui.cpp" />
+    <ClCompile Include="external_files\ImGUI\imgui_demo.cpp" />
+    <ClCompile Include="external_files\ImGUI\imgui_draw.cpp" />
+    <ClCompile Include="external_files\ImGUI\imgui_impl_glfw.cpp" />
+    <ClCompile Include="external_files\ImGUI\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
@@ -145,6 +150,14 @@
     <None Include="Assets\Shaders\Basic.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="external_files\ImGUI\imconfig.h" />
+    <ClInclude Include="external_files\ImGUI\imgui.h" />
+    <ClInclude Include="external_files\ImGUI\imgui_impl_glfw.h" />
+    <ClInclude Include="external_files\ImGUI\imgui_impl_opengl3.h" />
+    <ClInclude Include="external_files\ImGUI\imgui_internal.h" />
+    <ClInclude Include="external_files\ImGUI\stb_rect_pack.h" />
+    <ClInclude Include="external_files\ImGUI\stb_textedit.h" />
+    <ClInclude Include="external_files\ImGUI\stb_truetype.h" />
     <ClInclude Include="external_files\stb\stb_image.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Renderer.h" />

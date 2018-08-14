@@ -10,6 +10,12 @@
 #include <iostream>
 #include "Texture.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
+#include "../external_files/ImGUI/imgui.h"
+#include "../external_files/ImGUI/imgui_impl_glfw.h"
+#include "../external_files/ImGUI/imgui_impl_opengl3.h"
+
 int main(int _argc, char* _argv[])
 {
 	/* Initialize the library */
@@ -17,7 +23,7 @@ int main(int _argc, char* _argv[])
 		return -1;
 
 	/* Create a windowed mode window and its OpenGL context */
-	GLFWwindow * window = glfwCreateWindow(480, 480, "Hello World", NULL, NULL);
+	GLFWwindow * window = glfwCreateWindow(800, 450, "Hello World", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -37,6 +43,16 @@ int main(int _argc, char* _argv[])
 	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
 	olab::Renderer renderer;
+
+	/* ImGui setup */
+	ImGui::CreateContext();
+
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init();
+
+	// Setup style
+	ImGui::StyleColorsDark();
+
 
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
@@ -64,6 +80,13 @@ int main(int _argc, char* _argv[])
 
 		olab::IndexBuffer ib(indices, 6);
 
+		glm::vec3 translation(1.0f, 0.0f, 0.0f);
+
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, translation);
+
+		const glm::mat4 projection_matrix = glm::ortho(-8.0f, 8.0f, -4.5f, 4.5f, -1.0f, 1.0f);
+
 		//olab::Shader test = olab::Shader("Assets/Shaders/Basic.vert", "Assets/Shaders/Basic.frag");
 		olab::Shader test = olab::Shader("Assets/Shaders/Basic.shader");
 
@@ -72,6 +95,12 @@ int main(int _argc, char* _argv[])
 
 		test.use();
 		test.setInt("u_Texture", 0);
+		test.setMat4("u_ProjectionMatrix", projection_matrix);
+
+
+		bool show_demo_window = true;
+		bool show_another_window = false;
+		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 		/* Loop until the user closes the window */
 		while (!glfwWindowShouldClose(window))
@@ -79,11 +108,28 @@ int main(int _argc, char* _argv[])
 
 			olab::Renderer::Clear();
 
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
+
+			{
+
+				ImGui::SliderFloat3("float", glm::value_ptr(translation), -5.0f, 5.0f);
+
+				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			}
+
+			model = glm::translate(glm::mat4(1.0f), translation);
+
 			test.use();
+			test.setMat4("u_ModelMatrix", model);
 			//test.setVec3("u_Colour", glm::vec3(glm::cos(glfwGetTime()), 0.2f, 0.3f));
-			test.setInt("u_Texture", 0);
+			//test.setInt("u_Texture", 0);
 			renderer.Draw(va, ib, test);
 			
+			ImGui::Render();
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 			/* Swap front and back buffers */
 			glfwSwapBuffers(window);
 
@@ -92,6 +138,10 @@ int main(int _argc, char* _argv[])
 		}
 
 	}
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 
 	glfwTerminate();
 	return 0;

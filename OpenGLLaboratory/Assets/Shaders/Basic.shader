@@ -6,8 +6,11 @@ layout(location = 1) in vec2 aTexCoord;
 
 out vec2 texCoord;
 
+uniform mat4 u_ModelMatrix;
+uniform mat4 u_ProjectionMatrix;
+
 void main() {
-	gl_Position = vec4(aPosition, 0.0f, 1.0f);
+	gl_Position = u_ProjectionMatrix * u_ModelMatrix * vec4(aPosition, 0.0f, 1.0f);
 	texCoord = aTexCoord;
 }
 
