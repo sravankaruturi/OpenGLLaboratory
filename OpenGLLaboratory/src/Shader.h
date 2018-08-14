@@ -129,27 +129,27 @@ namespace olab
 		bool CheckCompileErrors(unsigned int _shaderId, std::string _type);
 
 
-		private:
+	private:
 
-			int getUniformLocation(const std::string& _name) {
+		int getUniformLocation(const std::string& _name) {
 
-				if (uniformLocations.find(_name) == uniformLocations.end()) {
+			if (uniformLocations.find(_name) == uniformLocations.end()) {
 
-					GLCall(int location = glGetUniformLocation(shaderId, _name.c_str()));
-					uniformLocations[_name] = location;
+				GLCall(int location = glGetUniformLocation(shaderId, _name.c_str()));
+				uniformLocations[_name] = location;
 
-					if (location == -1) {
-						std::cout << "Uniform " << _name << " does not exist." << std::endl;
-					}
-
-					return location;
-
+				if (location == -1) {
+					std::cout << "Uniform " << _name << " does not exist." << std::endl;
 				}
-				else {
-					return uniformLocations[_name];
-				}
+
+				return location;
 
 			}
+			else {
+				return uniformLocations[_name];
+			}
+
+		}
 
 	};
 }
