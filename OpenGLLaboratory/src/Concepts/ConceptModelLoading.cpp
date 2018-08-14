@@ -1,0 +1,170 @@
+﻿#include "ConceptModelLoading.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <filesystem>
+#include <iostream>
+
+#include "../IndexBuffer.h"
+#include "../VertexBuffer.h"
+#include "../Shader.h"
+#include <glm/gtc/matrix_transform.inl>
+
+namespace olab
+{
+	namespace concepts
+	{
+		
+		Mesh ConceptModelLoading::ProcessMesh(aiMesh *_mesh, const aiScene *_scene)
+		{
+			Mesh return_mesh;
+
+			std::vector<float> vertices;
+			std::vector<unsigned int> indices;
+
+
+			for (unsigned int i = 0; i < _mesh->mNumVertices; i++)
+			{
+				float tex_x = 0.0f;
+				float tex_y = 0.0f;
+
+				if ( _mesh->mTextureCoords[0] )
+				{
+					tex_x = _mesh->mTextureCoords[0][i].x;
+					tex_y = _mesh->mTextureCoords[0][i].y;
+				}
+
+				vertices.push_back(_mesh->mVertices[i].x);
+				vertices.push_back(_mesh->mVertices[i].y);
+				vertices.push_back(_mesh->mVertices[i].z);
+
+				vertices.push_back(_mesh->mNormals[i].x);
+				vertices.push_back(_mesh->mNormals[i].y);
+				vertices.push_back(_mesh->mNormals[i].z);
+
+				vertices.push_back(tex_x);
+				vertices.push_back(tex_y);
+			}
+
+			// process indices
+			for (unsigned int i = 0; i < _mesh->mNumFaces; i++)
+			{
+				aiFace face = _mesh->mFaces[i];
+				// retrieve all indices of the face and store them in the indices vector
+				for (unsigned int j = 0; j < face.mNumIndices; j++)
+					indices.push_back(face.mIndices[j]);
+			}
+
+			aiMaterial* material = _scene->mMaterials[_mesh->mMaterialIndex];
+			const std::vector<Texture *> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+
+			VertexBuffer * vb = new VertexBuffer(&vertices[0], 8 * sizeof(float));
+			VertexBufferLayout vbl;
+			vbl.Push<float>(3);
+			vbl.Push<float>(3);
+			vbl.Push<float>(2);
+
+			return_mesh.vb = vb;
+			return_mesh.va = new VertexArray();
+			return_mesh.va->AddBuffer(*vb, vbl);
+			return_mesh.ib = new olab::IndexBuffer(&indices[0], indices.size());
+			return_mesh.textures = diffuseMaps;
+
+			return return_mesh;
+		}
+
+		void ConceptModelLoading::ProcessNode(aiNode *_node, const aiScene *_scene)
+		{
+			// process all the node's meshes (if any)
+			for (unsigned int i = 0; i < _node->mNumMeshes; i++)
+			{
+				aiMesh *mesh = _scene->mMeshes[_node->mMeshes[i]];
+				meshes.push_back(ProcessMesh(mesh, _scene));
+			}
+			// then do the same for each of its children
+			for (unsigned int i = 0; i < _node->mNumChildren; i++)
+			{
+				ProcessNode(_node->mChildren[i], _scene);
+			}
+		}
+
+		// checks all material textures of a given type and loads the textures if they're not loaded yet.
+			// the required info is returned as a Texture struct.
+		std::vector<Texture *> ConceptModelLoading::LoadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName)
+		{
+			std::vector<Texture *> textures;
+			for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+			{
+				aiString str;
+				mat->GetTexture(type, i, &str);
+				// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+				Texture * texture;
+				texture = new Texture((std::string("Assets/Textures/nanosuit/") + std::string(str.C_Str())));
+				textures.push_back(texture);
+			}
+
+			return textures;
+		}
+
+		ConceptModelLoading::ConceptModelLoading()
+		{
+
+			std::string path = "Assets/Models/nanosuit/nanosuit.obj";
+
+			Assimp::Importer import;
+			const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+
+			if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+			{
+				std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
+				return;
+			}
+			std::string directory = path.substr(0, path.find_last_of('/'));
+
+			ProcessNode(scene->mRootNode, scene);
+
+			Shader * shader = new Shader("Assets/Shaders/Concept_mvp.shader");
+
+			shader->use();
+			shader->setMat4("u_ModelMatrix", glm::mat4(1.0));
+			shader->setMat4("u_ViewMatrix", glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+			shader->setMat4("u_ProjectionMatrix", glm::perspective(glm::radians(45.0f), 16.0f/9.0f, 0.1f, 100.0f));
+
+			for (auto& it : meshes)
+			{
+				it.shader = shader;
+			}
+		}
+
+		ConceptModelLoading::~ConceptModelLoading()
+		{
+			// Delete all the memory allocated for each mesh.
+		}
+
+		void ConceptModelLoading::OnRender(const Renderer& _renderer)
+		{
+			for (const auto& it : meshes)
+			{
+
+				it.shader->setInt("u_Texture", 0);
+				if ( it.textures.size() > 0)
+				{
+					it.textures[0]->Bind();
+				}
+
+				if ( nullptr == it.va || nullptr == it.ib || nullptr == it.shader)
+				{
+					__debugbreak();
+				}
+				it.vb->Bind();
+				_renderer.Draw(it.va, it.ib, it.shader);
+			}
+		}
+
+		void ConceptModelLoading::OnImGuiRender()
+		{
+			
+		}
+
+	}
+}

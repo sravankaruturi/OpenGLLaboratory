@@ -32,6 +32,7 @@ namespace olab {
 		Renderer();
 
 		void Draw(const VertexArray& _va, const IndexBuffer& _ib, const Shader& _shader) const;
+		void Draw(VertexArray * _va, IndexBuffer * _ib, Shader * _shader) const;
 
 		static void Clear();
 

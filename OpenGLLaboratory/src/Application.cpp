@@ -10,6 +10,7 @@
 
 #include "Concepts/ConceptClearColour.h"	
 #include "Concepts/ConceptModelViewProjection.h"
+#include "Concepts/ConceptModelLoading.h"
 
 int width =		1600;
 int height =	900;
@@ -58,6 +59,7 @@ int main(int _argc, char* _argv[])
 
 	concepts_menu->RegisterConcept<olab::concepts::ConceptClearColour>("Clear Colour");
 	concepts_menu->RegisterConcept<olab::concepts::ConceptModelViewProjection>("Model View Projection Matrices");
+	concepts_menu->RegisterConcept<olab::concepts::ConceptModelLoading>("Model Loading");
 
 	// We Draw the Current Test and we want to start with the Menu usually.
 	current_concept = concepts_menu;

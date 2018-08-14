@@ -33,6 +33,14 @@ namespace olab {
 		GLCall(glDrawElements(GL_TRIANGLES, _ib.Count(), GL_UNSIGNED_INT, nullptr));
 	}
 
+	void Renderer::Draw(VertexArray * _va, IndexBuffer * _ib, Shader * _shader) const
+	{
+		_shader->use();
+		_va->Bind();
+		_ib->Bind();
+		GLCall(glDrawElements(GL_TRIANGLES, _ib->Count(), GL_UNSIGNED_INT, nullptr));
+	}
+
 	void Renderer::Clear()
 	{
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
