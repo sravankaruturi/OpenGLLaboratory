@@ -51,19 +51,19 @@ namespace olab
 		// fragment Shader
 		fragment = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragment, 1, &fShaderCode, NULL);
-		glCompileShader(fragment);
-		success = CheckCompileErrors(fragment, "FRAGMENT");
-		compileStatus = compileStatus && success;
-		// shader Program
-		shaderId = glCreateProgram();
-		glAttachShader(shaderId, vertex);
-		glAttachShader(shaderId, fragment);
-		glLinkProgram(shaderId);
-		success = CheckCompileErrors(shaderId, "PROGRAM");
-		compileStatus = compileStatus && success;
-		// delete the shaders as they're linked into our program now and no longer necessary
-		glDeleteShader(vertex);
-		glDeleteShader(fragment);
+glCompileShader(fragment);
+success = CheckCompileErrors(fragment, "FRAGMENT");
+compileStatus = compileStatus && success;
+// shader Program
+shaderId = glCreateProgram();
+glAttachShader(shaderId, vertex);
+glAttachShader(shaderId, fragment);
+glLinkProgram(shaderId);
+success = CheckCompileErrors(shaderId, "PROGRAM");
+compileStatus = compileStatus && success;
+// delete the shaders as they're linked into our program now and no longer necessary
+glDeleteShader(vertex);
+glDeleteShader(fragment);
 
 	}
 
@@ -73,6 +73,8 @@ namespace olab
 		// 1. retrieve the vertex/fragment source code from filePath
 		std::string vertexCode;
 		std::string fragmentCode;
+		std::string geometry_code;
+
 		std::ifstream shader_file_stream;
 
 		// ensure ifstream objects can throw exceptions:
@@ -82,7 +84,7 @@ namespace olab
 			shader_file_stream = std::ifstream(_combinedFilePath);
 			std::string line;
 
-			std::stringstream ss[2];
+			std::stringstream ss[3];
 			int stream_index = -1;
 
 			while (getline(shader_file_stream, line))
@@ -94,6 +96,9 @@ namespace olab
 					else if (line.find("fragment") != std::string::npos) {
 						stream_index = 1;
 					}
+					else if (line.find("geometry") != std::string::npos) {
+						stream_index = 2;
+					}
 				}
 				else {
 					ss[stream_index] << line << '\n';
@@ -101,6 +106,7 @@ namespace olab
 			}
 
 			vertexCode = ss[0].str();
+			geometry_code = ss[2].str();
 			fragmentCode = ss[1].str();
 
 		}
@@ -110,9 +116,13 @@ namespace olab
 		}
 
 		const char* vShaderCode = vertexCode.c_str();
+
+		const char * g_shader_code = geometry_code.c_str();
+
 		const char * fShaderCode = fragmentCode.c_str();
+
 		// 2. compile shaders
-		unsigned int vertex, fragment;
+		unsigned int vertex, fragment, geometry;
 		bool success;
 		// vertex shader
 		vertex = glCreateShader(GL_VERTEX_SHADER);
@@ -120,6 +130,16 @@ namespace olab
 		glCompileShader(vertex);
 		success = CheckCompileErrors(vertex, "VERTEX");
 		compileStatus = compileStatus && success;
+
+		if (!geometry_code.empty()) {
+
+			geometry = glCreateShader(GL_GEOMETRY_SHADER);
+			glShaderSource(geometry, 1, &g_shader_code, NULL);
+			glCompileShader(geometry);
+			success = CheckCompileErrors(geometry, "GEOMETRY");
+			compileStatus = compileStatus && success;
+		}
+
 		// fragment Shader
 		fragment = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragment, 1, &fShaderCode, NULL);
@@ -128,13 +148,22 @@ namespace olab
 		compileStatus = compileStatus && success;
 		// shader Program
 		shaderId = glCreateProgram();
+
 		glAttachShader(shaderId, vertex);
+
+		if (!geometry_code.empty()){
+			glAttachShader(shaderId, geometry);
+		}
+
 		glAttachShader(shaderId, fragment);
 		glLinkProgram(shaderId);
 		success = CheckCompileErrors(shaderId, "PROGRAM");
 		compileStatus = compileStatus && success;
 		// delete the shaders as they're linked into our program now and no longer necessary
 		glDeleteShader(vertex);
+		if (!geometry_code.empty()) {
+			glDeleteShader(geometry);
+		}
 		glDeleteShader(fragment);
 
 	}

@@ -1,9 +1,6 @@
 ﻿#pragma once
 
-#ifndef GLEW_STATIC
-#define GLEW_STATIC
-#include <GL/glew.h>
-#endif
+#include <glad/glad.h>
 
 #ifndef ASSERT
 #define ASSERT(x) if(!(x)) __debugbreak()

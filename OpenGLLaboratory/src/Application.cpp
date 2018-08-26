@@ -15,6 +15,7 @@
 #define _CRTDBG_MAP_ALLOC  
 #include <stdlib.h>  
 #include <crtdbg.h>  
+#include "Concepts/ConceptMultipleViewports.h"
 
 int width =		1600;
 int height =	900;
@@ -30,6 +31,10 @@ int main(int _argc, char* _argv[])
 	if (!glfwInit())
 		return -1;
 
+	/*glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);*/
+
 	/* Create a windowed mode window and its OpenGL context */
 	GLFWwindow * window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
 	if (!window)
@@ -44,8 +49,9 @@ int main(int _argc, char* _argv[])
 	glfwSetWindowSizeCallback(window, window_resize);
 
 	/* Load Glad */
-	if (GLEW_OK != glewInit()) {
-		std::cout << "Failed to Init Glew" << std::endl;
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
 
@@ -66,6 +72,7 @@ int main(int _argc, char* _argv[])
 	concepts_menu->RegisterConcept<olab::concepts::ConceptClearColour>("Clear Colour");
 	concepts_menu->RegisterConcept<olab::concepts::ConceptModelViewProjection>("Model View Projection Matrices");
 	concepts_menu->RegisterConcept<olab::concepts::ConceptModelLoading>("Model Loading");
+	concepts_menu->RegisterConcept<olab::concepts::ConceptMultipleViewports>("Multiple Viewports");
 
 	// We Draw the Current Test and we want to start with the Menu usually.
 	current_concept = concepts_menu;

@@ -128,9 +128,6 @@ namespace olab
 		*/
 		bool CheckCompileErrors(unsigned int _shaderId, std::string _type);
 
-
-	private:
-
 		int getUniformLocation(const std::string& _name) {
 
 			if (uniformLocations.find(_name) == uniformLocations.end()) {
