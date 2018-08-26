@@ -72,7 +72,13 @@ int main(int _argc, char* _argv[])
 	concepts_menu->RegisterConcept<olab::concepts::ConceptClearColour>("Clear Colour");
 	concepts_menu->RegisterConcept<olab::concepts::ConceptModelViewProjection>("Model View Projection Matrices");
 	concepts_menu->RegisterConcept<olab::concepts::ConceptModelLoading>("Model Loading");
-	concepts_menu->RegisterConcept<olab::concepts::ConceptMultipleViewports>("Multiple Viewports");
+	//concepts_menu->RegisterConcept<olab::concepts::ConceptMultipleViewports>("Multiple Viewports");
+	{
+		std::string _name = "Multiple Viewports";
+		std::cout << "Registered Test : " << _name << std::endl;
+		concepts_menu->concepts.push_back(std::make_pair(_name, [window]() {return new olab::concepts::ConceptMultipleViewports(window); }));
+	}
+	
 
 	// We Draw the Current Test and we want to start with the Menu usually.
 	current_concept = concepts_menu;
@@ -133,5 +139,5 @@ int main(int _argc, char* _argv[])
 void window_resize(GLFWwindow * _window, int _width, int _height) {
 	width = _width;
 	height = _height;
-	glViewport(0, 0, _width, _height);
+	//glViewport(0, 0, _width, _height);
 }

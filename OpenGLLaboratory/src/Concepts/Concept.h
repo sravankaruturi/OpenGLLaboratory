@@ -36,6 +36,7 @@ namespace olab {
 			// Reference to the Current Selected Pointer. It is defined and is used outside the scope of this class as well. So we just use the reference to that pointer.
 			Concept*& currenConcept;
 
+		public:
 			// A list of strings and the Concept Classes.
 			std::vector < std::pair<std::string, std::function<Concept *()> >> concepts;
 
