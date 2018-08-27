@@ -30,7 +30,6 @@ namespace olab {
 			glViewportIndexedf(2, 0, h2, w2, h2);
 			glViewportIndexedf(3, w2, h2, w2, h2);
 
-			glEnable(GL_SCISSOR_TEST);
 		}
 
 		void ConceptMultipleViewports::OnUpdate(float _deltaTime)
