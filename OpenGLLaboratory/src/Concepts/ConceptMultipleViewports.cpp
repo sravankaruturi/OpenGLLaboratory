@@ -7,12 +7,14 @@
 namespace olab {
 	namespace concepts {
 
-		ConceptMultipleViewports::ConceptMultipleViewports(GLFWwindow * _window)
-			: window(_window),
+		ConceptMultipleViewports::ConceptMultipleViewports():
 			vb(positions, 180 * sizeof(float)),
 			ib(indices, sizeof(indices) / sizeof(float)),
 			multipleViewportsShader("Assets/Shaders/Concept_multipleViewports.shader")
 		{
+
+			window = glfwGetCurrentContext();
+
 			layout.Push<float>(3);
 
 			va.AddBuffer(vb, layout);

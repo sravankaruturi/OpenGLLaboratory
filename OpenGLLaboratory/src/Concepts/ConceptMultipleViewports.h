@@ -89,7 +89,7 @@ namespace olab {
 
 		public:
 
-			ConceptMultipleViewports(GLFWwindow * _window);
+			ConceptMultipleViewports();
 			~ConceptMultipleViewports() = default;
 
 			void OnUpdate(float _deltaTime) override;

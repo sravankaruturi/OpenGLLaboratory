@@ -72,14 +72,8 @@ int main(int _argc, char* _argv[])
 	concepts_menu->RegisterConcept<olab::concepts::ConceptClearColour>("Clear Colour");
 	concepts_menu->RegisterConcept<olab::concepts::ConceptModelViewProjection>("Model View Projection Matrices");
 	concepts_menu->RegisterConcept<olab::concepts::ConceptModelLoading>("Model Loading");
-	//concepts_menu->RegisterConcept<olab::concepts::ConceptMultipleViewports>("Multiple Viewports");
-	{
-		std::string _name = "Multiple Viewports";
-		std::cout << "Registered Test : " << _name << std::endl;
-		concepts_menu->concepts.push_back(std::make_pair(_name, [window]() {return new olab::concepts::ConceptMultipleViewports(window); }));
-	}
+	concepts_menu->RegisterConcept<olab::concepts::ConceptMultipleViewports>("Multiple Viewports");
 	
-
 	// We Draw the Current Test and we want to start with the Menu usually.
 	current_concept = concepts_menu;
 
