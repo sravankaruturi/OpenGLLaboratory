@@ -143,6 +143,7 @@
     <ClCompile Include="src\Concepts\ConceptModelLoading.cpp" />
     <ClCompile Include="src\Concepts\ConceptModelViewProjection.cpp" />
     <ClCompile Include="src\Concepts\ConceptMultipleViewports.cpp" />
+    <ClCompile Include="src\Concepts\ConceptStencilTest.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="src\Concepts\ConceptModelLoading.h" />
     <ClInclude Include="src\Concepts\ConceptModelViewProjection.h" />
     <ClInclude Include="src\Concepts\ConceptMultipleViewports.h" />
+    <ClInclude Include="src\Concepts\ConceptStencilTest.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />

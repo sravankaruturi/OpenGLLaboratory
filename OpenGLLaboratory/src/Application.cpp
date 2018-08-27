@@ -11,11 +11,12 @@
 #include "Concepts/ConceptClearColour.h"	
 #include "Concepts/ConceptModelViewProjection.h"
 #include "Concepts/ConceptModelLoading.h"
+#include "Concepts/ConceptStencilTest.h"
+#include "Concepts/ConceptMultipleViewports.h"
 
 #define _CRTDBG_MAP_ALLOC  
 #include <stdlib.h>  
 #include <crtdbg.h>  
-#include "Concepts/ConceptMultipleViewports.h"
 
 int width =		1600;
 int height =	900;
@@ -30,10 +31,6 @@ int main(int _argc, char* _argv[])
 	/* Initialize the library */
 	if (!glfwInit())
 		return -1;
-
-	/*glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);*/
 
 	/* Create a windowed mode window and its OpenGL context */
 	GLFWwindow * window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
@@ -73,6 +70,7 @@ int main(int _argc, char* _argv[])
 	concepts_menu->RegisterConcept<olab::concepts::ConceptModelViewProjection>("Model View Projection Matrices");
 	concepts_menu->RegisterConcept<olab::concepts::ConceptModelLoading>("Model Loading");
 	concepts_menu->RegisterConcept<olab::concepts::ConceptMultipleViewports>("Multiple Viewports");
+	concepts_menu->RegisterConcept<olab::concepts::ConceptStencilTest>("Stencil Testing");
 	
 	// We Draw the Current Test and we want to start with the Menu usually.
 	current_concept = concepts_menu;

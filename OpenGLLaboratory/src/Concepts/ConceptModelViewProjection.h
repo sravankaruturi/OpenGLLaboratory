@@ -15,7 +15,7 @@ namespace olab {
 		class ConceptModelViewProjection : public Concept
 		{
 
-		private:
+		protected:
 
 			const float positions[180] = {
 				-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
