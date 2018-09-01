@@ -143,6 +143,7 @@
     <ClCompile Include="src\Concepts\ConceptModelLoading.cpp" />
     <ClCompile Include="src\Concepts\ConceptModelViewProjection.cpp" />
     <ClCompile Include="src\Concepts\ConceptMultipleViewports.cpp" />
+    <ClCompile Include="src\Concepts\ConceptSkeletalMesh.cpp" />
     <ClCompile Include="src\Concepts\ConceptStencilTest.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
@@ -157,6 +158,7 @@
     <None Include="Assets\Shaders\Basic.vert" />
     <None Include="Assets\Shaders\Concept_multipleViewports.shader" />
     <None Include="Assets\Shaders\Concept_mvp.shader" />
+    <None Include="Assets\Shaders\Concept_skinning.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external_files\ImGUI\imconfig.h" />
@@ -173,6 +175,7 @@
     <ClInclude Include="src\Concepts\ConceptModelLoading.h" />
     <ClInclude Include="src\Concepts\ConceptModelViewProjection.h" />
     <ClInclude Include="src\Concepts\ConceptMultipleViewports.h" />
+    <ClInclude Include="src\Concepts\ConceptSkeletalMesh.h" />
     <ClInclude Include="src\Concepts\ConceptStencilTest.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Renderer.h" />

@@ -14,7 +14,6 @@ namespace olab
 {
 	namespace concepts
 	{
-
 		struct Mesh
 		{
 			VertexBuffer * vb;

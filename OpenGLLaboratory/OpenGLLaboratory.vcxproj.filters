@@ -72,6 +72,9 @@
     <ClCompile Include="src\Concepts\ConceptStencilTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Concepts\ConceptSkeletalMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\Basic.shader" />
@@ -79,6 +82,7 @@
     <None Include="Assets\Shaders\Basic.frag" />
     <None Include="Assets\Shaders\Concept_mvp.shader" />
     <None Include="Assets\Shaders\Concept_multipleViewports.shader" />
+    <None Include="Assets\Shaders\Concept_skinning.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Shader.h">
@@ -145,6 +149,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Concepts\ConceptStencilTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Concepts\ConceptSkeletalMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -13,6 +13,7 @@
 #include "Concepts/ConceptModelLoading.h"
 #include "Concepts/ConceptStencilTest.h"
 #include "Concepts/ConceptMultipleViewports.h"
+#include "Concepts/ConceptSkeletalMesh.h"
 
 #define _CRTDBG_MAP_ALLOC  
 #include <stdlib.h>  
@@ -71,6 +72,7 @@ int main(int _argc, char* _argv[])
 	concepts_menu->RegisterConcept<olab::concepts::ConceptModelLoading>("Model Loading");
 	concepts_menu->RegisterConcept<olab::concepts::ConceptMultipleViewports>("Multiple Viewports");
 	concepts_menu->RegisterConcept<olab::concepts::ConceptStencilTest>("Stencil Testing");
+	concepts_menu->RegisterConcept<olab::concepts::ConceptSkeletalMesh>("Skeletal Mesh Animation");
 	
 	// We Draw the Current Test and we want to start with the Menu usually.
 	current_concept = concepts_menu;
