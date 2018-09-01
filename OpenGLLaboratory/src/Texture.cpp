@@ -1,5 +1,6 @@
 ﻿#include "Texture.h"
 #include "Renderer.h"
+#include <iostream>
 
 #ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -47,6 +48,7 @@ namespace olab
 		}
 		else
 		{
+			std::cout << "Cannot Load " << _imagePath << " as a Texture" << std::endl;
 			loaded = false;
 		}
 

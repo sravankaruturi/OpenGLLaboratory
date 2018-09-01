@@ -29,6 +29,8 @@ namespace olab {
 
 			meshes.clear();
 
+			std::cout << std::endl << "Clearing existing Meshes" << std::endl;
+
 			cameraPosition = glm::vec3(0.0f, 0.0f, 10.0f);
 			cameraFront = glm::vec3(.0f, 0.0f, -1.0f);
 			viewMatrix = glm::lookAt(cameraPosition, cameraPosition + cameraFront, worldUp);
