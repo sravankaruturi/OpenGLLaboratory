@@ -101,7 +101,7 @@ namespace olab
 				mat->GetTexture(type, i, &str);
 				// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
 				Texture * texture;
-				texture = new Texture((std::string("Assets/Models/nanosuit/") + std::string(str.C_Str())));
+				texture = new Texture((std::string("Assets/Models/boblamp/") + std::string(str.C_Str())), false);
 				textures.push_back(texture);
 			}
 
@@ -111,31 +111,13 @@ namespace olab
 		ConceptModelLoading::ConceptModelLoading()
 		{
 
+#if 0
 			std::string path = "C:/dev/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/nanosuit/nanosuit.obj";
-
-			Assimp::Importer import;
-			const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
-
-			if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-			{
-				std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
-				return;
-			}
-			std::string directory = path.substr(0, path.find_last_of('/'));
-
-			ProcessNode(scene->mRootNode, scene);
-
-			Shader * shader = new Shader("Assets/Shaders/Concept_mvp.shader");
-
-			shader->use();
-			shader->setMat4("u_ModelMatrix", glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
-			shader->setMat4("u_ViewMatrix", glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-			shader->setMat4("u_ProjectionMatrix", glm::perspective(glm::radians(45.0f), 16.0f/9.0f, 0.1f, 100.0f));
-
-			for (auto& it : meshes)
-			{
-				it.shader = shader;
-			}
+#else 
+			std::string path = "Z:/IGMProfile/Desktop/Projects/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/nanosuit/nanosuit.obj";
+#endif
+			this->LoadMesh(path);
+			
 		}
 
 		ConceptModelLoading::~ConceptModelLoading()
@@ -151,7 +133,36 @@ namespace olab
 			}
 
 			// We only have one instance of it.
-			delete meshes[0].shader;
+			//delete meshes[0].shader;
+		}
+
+		void ConceptModelLoading::LoadMesh(std::string _path)
+		{
+
+			Assimp::Importer import;
+			const aiScene *scene = import.ReadFile(_path, aiProcess_Triangulate | aiProcess_FlipUVs);
+
+			if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+			{
+				std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
+				return;
+			}
+			std::string directory = _path.substr(0, _path.find_last_of('/'));
+
+			ProcessNode(scene->mRootNode, scene);
+
+			Shader * shader = new Shader("Assets/Shaders/Concept_mvp.shader");
+
+			shader->use();
+			shader->setMat4("u_ModelMatrix", glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
+			shader->setMat4("u_ViewMatrix", glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+			shader->setMat4("u_ProjectionMatrix", glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 100.0f));
+
+			for (auto& it : meshes)
+			{
+				it.shader = shader;
+			}
+
 		}
 
 		void ConceptModelLoading::OnRender(const Renderer& _renderer)

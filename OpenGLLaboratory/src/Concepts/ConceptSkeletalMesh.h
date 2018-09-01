@@ -9,7 +9,7 @@ namespace olab {
 
 	namespace concepts {
 
-		class ConceptSkeletalMesh : public Concept {
+		class ConceptSkeletalMesh : public ConceptModelLoading {
 
 			glm::vec3 position;
 			glm::vec3 rotation;
@@ -35,10 +35,6 @@ namespace olab {
 			void OnUpdate(float _deltaTime);
 			void OnRender(const Renderer& _renderer);
 			void OnImGuiRender();
-
-		private:
-
-			void LoadMesh(std::string _objectpath);
 
 		};
 

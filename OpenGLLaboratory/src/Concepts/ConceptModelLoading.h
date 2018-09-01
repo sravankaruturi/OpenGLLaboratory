@@ -26,7 +26,7 @@ namespace olab
 		class ConceptModelLoading : public Concept
 		{
 
-		private:
+		protected:
 			std::vector<Mesh> meshes;
 
 			void ProcessNode(aiNode *node, const aiScene *scene);
@@ -36,6 +36,8 @@ namespace olab
 		public:
 			ConceptModelLoading();
 			~ConceptModelLoading();
+
+			void LoadMesh(std::string _path);
 
 			virtual void OnRender(const Renderer& _renderer) override;
 			virtual void OnImGuiRender() override;

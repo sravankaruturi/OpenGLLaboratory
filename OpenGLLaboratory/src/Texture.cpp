@@ -19,7 +19,7 @@ namespace olab
 		GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 	}
 
-	Texture::Texture(const std::string& _imagePath)
+	Texture::Texture(const std::string& _imagePath, bool _flip_image)
 		:textureId(0)
 	{
 
@@ -32,7 +32,7 @@ namespace olab
 		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 
-		stbi_set_flip_vertically_on_load(true);
+		stbi_set_flip_vertically_on_load(_flip_image);
 
 		int width, height, nrChannels;
 

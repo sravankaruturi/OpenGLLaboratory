@@ -37,7 +37,7 @@ namespace olab
 
 		static void UnBind();
 
-		explicit Texture(const std::string& _imagePath);
+		explicit Texture(const std::string& _imagePath, bool _flip_image = true);
 
 		~Texture();
 	};
