@@ -44,19 +44,60 @@ namespace olab {
 
 		};
 
+		// We can have a shader each for each mesh. But we are not doint that for now, for the sake of simplicity.
+		struct SkeletalMesh {
+
+			VertexBuffer * vb;
+			VertexArray * va;
+			IndexBuffer * ib;
+			std::vector<Texture *> textures;
+			//Shader * shader;
+
+			// Add any bone Data that is relevant.
+
+		};
+
+		class SkeletalModel {
+
+			std::string filename;
+			std::vector<SkeletalMesh> meshes;
+
+			std::vector<VertexBoneData> vertexBoneData;
+			std::map<std::string, unsigned int> boneMapping; // Maps a bone to its index in BoneInfo
+
+			std::vector<BoneInfo> boneInfoData;
+
+			bool showSkeleton = false;
+
+			unsigned int numberOfVertices;
+			unsigned int numberOfIndices;
+			unsigned int numberOfMeshes;
+
+		public:
+
+			Shader * shader;
+
+			explicit SkeletalModel(const std::string &filename);
+			~SkeletalModel();
+
+			void LoadModel(const std::string& _filename);
+
+			// Render
+			void Render(Shader _shader, const Renderer& _renderer);
+
+			// Update
+			void Update(float _deltatime);
+
+			void SetShowSkeleton(bool _showSkeleton);
+
+			void ProcessModel();
+
+			
+
+			const std::vector<Texture *> LoadMaterialTextures(aiMaterial * _material, aiTextureType _textureType, std::string _param3);
+		};
+
 		class ConceptSkeletalMesh : public Concept {
-
-			struct Mesh {
-
-				VertexBuffer * vb;
-				VertexArray * va;
-				IndexBuffer * ib;
-				std::vector<Texture *> textures;
-				Shader * shader;
-
-				// Add any bone Data that is relevant.
-
-			};
 
 			glm::vec3 position;
 			glm::vec3 rotation;
@@ -74,14 +115,7 @@ namespace olab {
 			float fieldOfView;
 			glm::mat4 projectionMatrix;
 
-			std::vector<VertexBoneData> vertexBoneData;
-			std::map<std::string, unsigned int> boneMapping; // Maps a bone to its index in BoneInfo
-
-			std::vector<BoneInfo> boneInfoData;
-
-			std::vector<ConceptSkeletalMesh::Mesh> meshes;
-
-			std::vector<Texture*> LoadMaterialTextures(aiMaterial *_mat, aiTextureType _type, std::string _typeName);
+			SkeletalModel * model;
 
 		public:
 
@@ -91,12 +125,6 @@ namespace olab {
 			void OnUpdate(float _deltaTime);
 			void OnRender(const Renderer& _renderer);
 			void OnImGuiRender();
-
-			void LoadMesh(std::string _path);
-			void ProcessNode(aiNode * _node, const aiScene * _scene);
-
-			// This should be a different type of mesh since we do not have the structure ready for the bones in the previous mesh data.
-			Mesh ProcessMesh(aiMesh *_mesh, const aiScene *_scene);
 
 		};
 

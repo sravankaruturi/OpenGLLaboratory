@@ -26,22 +26,6 @@ namespace olab {
 
 		}
 
-		std::vector<Texture*> ConceptSkeletalMesh::LoadMaterialTextures(aiMaterial * _mat, aiTextureType _type, std::string _typeName)
-		{
-			std::vector<Texture *> textures;
-			for (unsigned int i = 0; i < _mat->GetTextureCount(_type); i++)
-			{
-				aiString str;
-				_mat->GetTexture(_type, i, &str);
-				// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
-				Texture * texture;
-				texture = new Texture((std::string("Assets/Models/boblamp/") + std::string(str.C_Str())), false);
-				textures.push_back(texture);
-			}
-
-			return textures;
-		}
-
 		ConceptSkeletalMesh::ConceptSkeletalMesh()
 			: skinningShader("Assets/Shaders/Concept_mvp.shader"),
 			position(0.0f, 0.0f, 0.0f),
@@ -51,8 +35,6 @@ namespace olab {
 			worldUp(0.0f, 1.0f, 0.0f),
 			fieldOfView(45.0f)
 		{
-
-			meshes.clear();
 
 			std::cout << std::endl << "Clearing existing Meshes" << std::endl;
 
@@ -68,7 +50,7 @@ namespace olab {
 			const std::string path = "C:/dev/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/boblamp/boblampclean.md5mesh";
 #endif
 
-			this->LoadMesh(path);
+			model = new SkeletalModel(path);
 
 			this->position = glm::vec3(0, 0, 0);
 			this->rotation = glm::vec3(90, 180, 180);
@@ -76,16 +58,11 @@ namespace olab {
 
 			this->cameraPosition = glm::vec3(0, 6, 22);
 
-			//delete meshes[0].shader;
-
-			//for (auto&it : meshes) {
-			//	it.shader = &skinningShader;
-			//}
 		}
 
 		ConceptSkeletalMesh::~ConceptSkeletalMesh()
 		{
-
+			delete model;
 		}
 
 		void ConceptSkeletalMesh::OnUpdate(float _deltaTime)
@@ -106,13 +83,15 @@ namespace olab {
 		void ConceptSkeletalMesh::OnRender(const Renderer& _renderer)
 		{
 
-			Shader * using_shader = meshes[0].shader;
+			Shader * using_shader = model->shader;
 
 			using_shader->use();
 			using_shader->setInt("u_Texture", 0);
 			using_shader->setMat4("u_ModelMatrix", modelMatrix);
 			using_shader->setMat4("u_ViewMatrix", viewMatrix);
 			using_shader->setMat4("u_ProjectionMatrix", projectionMatrix);
+
+			this->model->Render(*using_shader, _renderer);
 
 		}
 
@@ -132,154 +111,6 @@ namespace olab {
 
 		}
 
-		void ConceptSkeletalMesh::LoadMesh(std::string _path)
-		{
-
-			unsigned int total_number_of_vertices;
-
-			Assimp::Importer import;
-			const aiScene *scene = import.ReadFile(_path, aiProcess_Triangulate | aiProcess_FlipUVs);
-
-			if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-			{
-				std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
-				return;
-			}
-			std::string directory = _path.substr(0, _path.find_last_of('/'));
-
-			// Store the number of Meshes.
-			total_number_of_vertices = 0;
-			for (auto i = 0; i < scene->mNumMeshes; i++) {
-				total_number_of_vertices += scene->mMeshes[i]->mNumVertices;
-			}
-			// Resize the Bone Vertex Data as such.
-			vertexBoneData.resize(total_number_of_vertices);
-
-			this->ProcessNode(scene->mRootNode, scene);
-
-			Shader * shader = new Shader("Assets/Shaders/Concept_mvp.shader");
-
-			shader->use();
-			shader->setMat4("u_ModelMatrix", glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
-			shader->setMat4("u_ViewMatrix", glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-			shader->setMat4("u_ProjectionMatrix", glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 100.0f));
-
-			for (auto& it : meshes)
-			{
-				it.shader = shader;
-			}
-
-		}
-
-		void ConceptSkeletalMesh::ProcessNode(aiNode * _node, const aiScene * _scene)
-		{
-			// process all the node's meshes (if any)
-			for (unsigned int i = 0; i < _node->mNumMeshes; i++)
-			{
-				aiMesh *mesh = _scene->mMeshes[_node->mMeshes[i]];
-				meshes.push_back(this->ProcessMesh(mesh, _scene));
-			}
-			// then do the same for each of its children
-			for (unsigned int i = 0; i < _node->mNumChildren; i++)
-			{
-				this->ProcessNode(_node->mChildren[i], _scene);
-			}
-
-		}
-
-		ConceptSkeletalMesh::Mesh ConceptSkeletalMesh::ProcessMesh(aiMesh * _mesh, const aiScene * _scene)
-		{
-			Mesh return_mesh;
-
-			std::vector<float> vertices;
-			std::vector<unsigned int> indices;
-
-			for (unsigned int i = 0; i < _mesh->mNumVertices; i++)
-			{
-				float tex_x = 0.0f;
-				float tex_y = 0.0f;
-
-				if (_mesh->mTextureCoords[0])
-				{
-					tex_x = _mesh->mTextureCoords[0][i].x;
-					tex_y = _mesh->mTextureCoords[0][i].y;
-				}
-
-				vertices.push_back(_mesh->mVertices[i].x);
-				vertices.push_back(_mesh->mVertices[i].y);
-				vertices.push_back(_mesh->mVertices[i].z);
-
-				//vertices.push_back(_mesh->mNormals[i].x);
-				//vertices.push_back(_mesh->mNormals[i].y);
-				//vertices.push_back(_mesh->mNormals[i].z);
-
-				vertices.push_back(tex_x);
-				vertices.push_back(tex_y);
-			}
-
-			// A Bone or bones for each mesh.
-			for (auto i = 0; i < _mesh->mNumBones; i++) {
-
-				auto bone_index = 0;
-				std::string bone_name(_mesh->mBones[i]->mName.data);
-
-				// We could not find the bone in our map. Add it and add it to the Bone Info Data
-				if (boneMapping.find(bone_name) == boneMapping.end()) {
-
-					// TODO: If some thing doesn't work, maybe store this in a separate variable like he does.
-					bone_index = boneMapping.size();
-
-					BoneInfo bi;
-					// Since the GLM Matrices are Column Major, 
-					convert_aimatrix_to_glm(bi.boneOffset, _mesh->mBones[i]->mOffsetMatrix);
-					
-					boneInfoData.push_back(bi);
-
-					boneMapping[bone_name] = bone_index;
-
-				}
-				else {
-					bone_index = boneMapping[bone_name];
-				}
-
-				for (auto j = 0; j < _mesh->mBones[i]->mNumWeights; j++) {
-					// Since we separate each mesh, the base vertex would be 0. ??
-					auto vertex_id = 0 + _mesh->mBones[i]->mWeights[j].mVertexId;
-					auto weight = _mesh->mBones[i]->mWeights[j].mWeight;
-					this->vertexBoneData[vertex_id].AddBoneData(bone_index, weight);
-				}
-
-			}
-
-			// process indices
-			for (unsigned int i = 0; i < _mesh->mNumFaces; i++)
-			{
-				aiFace face = _mesh->mFaces[i];
-				// retrieve all indices of the face and store them in the indices vector
-				for (unsigned int j = 0; j < face.mNumIndices; j++)
-					indices.push_back(face.mIndices[j]);
-			}
-
-			aiMaterial* material = _scene->mMaterials[_mesh->mMaterialIndex];
-			const std::vector<Texture *> diffuseMaps = this->LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-
-			const unsigned int __temp = sizeof(float) * vertices.size();
-
-			VertexBuffer * vb = new VertexBuffer(&vertices[0], __temp);
-			VertexBufferLayout vbl;
-			vbl.Push<float>(3);
-			//vbl.Push<float>(3);
-			vbl.Push<float>(2);
-
-			return_mesh.vb = vb;
-			return_mesh.va = new VertexArray();
-			return_mesh.va->AddBuffer(*vb, vbl);
-			return_mesh.ib = new olab::IndexBuffer(&indices[0], indices.size());
-			return_mesh.textures = diffuseMaps;
-
-			return return_mesh;
-		}
-
 		void VertexBoneData::AddBoneData(unsigned int _boneID, float _weight)
 		{
 			for (auto i = 0; i < sizeof(Ids)/sizeof(unsigned int); i++) {
@@ -294,5 +125,191 @@ namespace olab {
 			assert(0);
 		}
 
-	}
+		SkeletalModel::SkeletalModel(const std::string & _filename)
+		{
+			filename = _filename;
+			this->LoadModel(this->filename);
+
+		}
+
+		SkeletalModel::~SkeletalModel()
+		{
+
+		}
+
+		void SkeletalModel::LoadModel(const std::string & _filename)
+		{
+
+			std::string directory = _filename.substr(0, _filename.find_last_of('/'));
+
+			this->ProcessModel();
+
+			Shader * shader = new Shader("Assets/Shaders/Concept_mvp.shader");
+
+			shader->use();
+			shader->setMat4("u_ModelMatrix", glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
+			shader->setMat4("u_ViewMatrix", glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+			shader->setMat4("u_ProjectionMatrix", glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 100.0f));
+			
+		}
+
+		void SkeletalModel::Render(Shader _shader, const Renderer& _renderer)
+		{
+			// Render all the Meshes.
+			for (const auto& it : meshes) {
+
+				_shader.use();
+				_shader.setInt("u_Texture", 0);
+				if (it.textures.size() > 0) {
+					it.textures[0]->Bind(0);
+				}
+
+				if (nullptr == it.va || nullptr == it.ib)
+				{
+					__debugbreak();
+				}
+
+				it.vb->Bind();
+				_renderer.Draw(it.va, it.ib, shader);
+
+			}
+
+		}
+
+		void SkeletalModel::Update(float _deltatime)
+		{
+			throw std::logic_error("The method or operation is not implemented.");
+		}
+
+		void SkeletalModel::SetShowSkeleton(bool _showSkeleton)
+		{
+			showSkeleton = _showSkeleton;
+		}
+
+		void SkeletalModel::ProcessModel()
+		{
+
+			Assimp::Importer import;
+			const aiScene *scene = import.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs);
+
+			if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+			{
+				std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
+				return;
+			}
+
+			numberOfMeshes = 0;
+
+			// Store the number of Vertices.
+			numberOfVertices = 0;
+			for (auto i = 0; i < scene->mNumMeshes; i++) {
+				numberOfVertices += scene->mMeshes[i]->mNumVertices;
+			}
+			// Resize the Bone Vertex Data as such.
+			vertexBoneData.resize(numberOfVertices);
+
+			// Cycle through all the meshes. Since all the meshes are part of the aiScene, it shouldn't be a big deal.
+			numberOfMeshes = scene->mNumMeshes;
+			meshes.resize(numberOfMeshes);
+
+			std::vector<float> vertices;
+			std::vector<unsigned int> indices;
+
+			for (auto i = 0; i < numberOfMeshes; i++) {
+
+				vertices.clear();
+				indices.clear();
+
+				aiMesh * current_mesh = scene->mMeshes[i];
+
+				for (auto j = 0; j < current_mesh->mNumVertices; j++) {
+
+					// Push each vertex onto the mesh.
+
+					float tex_x = 0.0f;
+					float tex_y = 0.0f;
+
+					if (scene->mMeshes[i]->mTextureCoords[0]) {
+						tex_x = current_mesh->mTextureCoords[0][j].x;
+						tex_y = current_mesh->mTextureCoords[0][j].y;
+					}
+
+					vertices.push_back(current_mesh->mVertices[j].x);
+					vertices.push_back(current_mesh->mVertices[j].y);
+					vertices.push_back(current_mesh->mVertices[j].z);
+
+					//if (current_mesh->HasNormals()) {
+					//	vertices.push_back(current_mesh->mNormals[j].x);
+					//	vertices.push_back(current_mesh->mNormals[j].y);
+					//	vertices.push_back(current_mesh->mNormals[j].z);
+					//}
+					//else {
+					//	vertices.push_back(0.0f);
+					//	vertices.push_back(0.0f);
+					//	vertices.push_back(0.0f);
+					//}
+					
+
+					vertices.push_back(tex_x);
+					vertices.push_back(tex_y);
+
+				}
+
+				// Lets do bones after the actual thing works.
+
+				for (auto j = 0; j < current_mesh->mNumFaces; j++) {
+
+					aiFace face = current_mesh->mFaces[j];
+
+					for (auto k = 0; k < face.mNumIndices; k++) {
+						indices.push_back(face.mIndices[k]);
+					}
+
+				}
+
+				// Deal with the materials now.
+				aiMaterial * material = scene->mMaterials[current_mesh->mMaterialIndex];
+				const std::vector<Texture *> diffuse_maps = this->LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+
+				VertexBuffer * vb = new VertexBuffer(&vertices[0], sizeof(float) * vertices.size());
+
+				VertexBufferLayout vbl;
+				vbl.Push<float>(3);	// Pos
+				//vbl.Push<float>(3);	// Nor
+				vbl.Push<float>(2);	// Tex
+
+				meshes[i].vb = vb;
+				meshes[i].va = new VertexArray();
+				meshes[i].va->AddBuffer(*vb, vbl);
+				meshes[i].ib = new IndexBuffer(&indices[0], indices.size());
+				meshes[i].textures = diffuse_maps;
+
+			}
+
+			this->shader = new Shader("Assets/Shaders/Concept_mvp.shader");
+
+			shader->use();
+			shader->setMat4("u_ModelMatrix", glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
+			shader->setMat4("u_ViewMatrix", glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+			shader->setMat4("u_ProjectionMatrix", glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 100.0f));
+
+		}
+
+		const std::vector<Texture *> SkeletalModel::LoadMaterialTextures(aiMaterial * _material, aiTextureType _textureType, std::string _param3)
+		{
+			std::vector<Texture *> textures;
+			for (unsigned int i = 0; i < _material->GetTextureCount(_textureType); i++)
+			{
+				aiString str;
+				_material->GetTexture(_textureType, i, &str);
+				// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+				Texture * texture;
+				texture = new Texture((std::string("Assets/Models/boblamp/") + std::string(str.C_Str())), false);
+				textures.push_back(texture);
+			}
+
+			return textures;
+		}
+
+}
 }
