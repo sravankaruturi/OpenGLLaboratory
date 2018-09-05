@@ -17,7 +17,7 @@ namespace olab
 	namespace concepts
 	{
 		
-		Mesh ConceptModelLoading::ProcessMesh(aiMesh *_mesh, const aiScene *_scene)
+		ConceptModelLoading::Mesh ConceptModelLoading::ProcessMesh(aiMesh *_mesh, const aiScene *_scene)
 		{
 			Mesh return_mesh;
 

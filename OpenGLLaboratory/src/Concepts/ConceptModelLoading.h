@@ -14,23 +14,25 @@ namespace olab
 {
 	namespace concepts
 	{
-		struct Mesh
-		{
-			VertexBuffer * vb;
-			VertexArray * va;
-			IndexBuffer * ib;
-			std::vector<Texture *> textures;
-			Shader * shader;
-		};
 
 		class ConceptModelLoading : public Concept
 		{
 
 		protected:
-			std::vector<Mesh> meshes;
+
+			struct Mesh
+			{
+				VertexBuffer * vb;
+				VertexArray * va;
+				IndexBuffer * ib;
+				std::vector<Texture *> textures;
+				Shader * shader;
+			};
+
+			std::vector<ConceptModelLoading::Mesh> meshes;
 
 			void ProcessNode(aiNode *node, const aiScene *scene);
-			Mesh ProcessMesh(aiMesh *mesh, const aiScene *scene);
+			ConceptModelLoading::Mesh ProcessMesh(aiMesh *mesh, const aiScene *scene);
 			std::vector<Texture*> LoadMaterialTextures(aiMaterial *_mat, aiTextureType _type, std::string _typeName);
 
 		public:

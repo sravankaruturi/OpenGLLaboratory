@@ -5,10 +5,6 @@
 #include <filesystem>
 #include <iostream>
 
-#include "../IndexBuffer.h"
-#include "../VertexBuffer.h"
-#include "../VertexArray.h"
-#include "../Shader.h"
 #include <glm/gtc/matrix_transform.inl>
 #include "../../external_files/ImGUI/imgui.h"
 
@@ -28,6 +24,22 @@ namespace olab {
 				}
 			}
 
+		}
+
+		std::vector<Texture*> ConceptSkeletalMesh::LoadMaterialTextures(aiMaterial * _mat, aiTextureType _type, std::string _typeName)
+		{
+			std::vector<Texture *> textures;
+			for (unsigned int i = 0; i < _mat->GetTextureCount(_type); i++)
+			{
+				aiString str;
+				_mat->GetTexture(_type, i, &str);
+				// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+				Texture * texture;
+				texture = new Texture((std::string("Assets/Models/boblamp/") + std::string(str.C_Str())), false);
+				textures.push_back(texture);
+			}
+
+			return textures;
 		}
 
 		ConceptSkeletalMesh::ConceptSkeletalMesh()
@@ -89,7 +101,6 @@ namespace olab {
 
 			projectionMatrix = glm::perspective(glm::radians(fieldOfView), 16.0f / 9.0f, 0.1f, 100.f);
 
-			ConceptModelLoading::OnUpdate(_deltaTime);
 		}
 
 		void ConceptSkeletalMesh::OnRender(const Renderer& _renderer)
@@ -103,13 +114,11 @@ namespace olab {
 			using_shader->setMat4("u_ViewMatrix", viewMatrix);
 			using_shader->setMat4("u_ProjectionMatrix", projectionMatrix);
 
-			ConceptModelLoading::OnRender(_renderer);
 		}
 
 		void ConceptSkeletalMesh::OnImGuiRender()
 		{
-			ConceptModelLoading::OnImGuiRender();
-
+			
 			ImGui::Text("Model Matrix");
 			ImGui::InputFloat3("Position", glm::value_ptr(position));
 			ImGui::InputFloat3("Rotation", glm::value_ptr(rotation));
@@ -167,7 +176,7 @@ namespace olab {
 
 		}
 
-		Mesh ConceptSkeletalMesh::ProcessMesh(aiMesh * _mesh, const aiScene * _scene)
+		ConceptSkeletalMesh::Mesh ConceptSkeletalMesh::ProcessMesh(aiMesh * _mesh, const aiScene * _scene)
 		{
 			Mesh return_mesh;
 
@@ -241,7 +250,7 @@ namespace olab {
 			}
 
 			aiMaterial* material = _scene->mMaterials[_mesh->mMaterialIndex];
-			const std::vector<Texture *> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+			const std::vector<Texture *> diffuseMaps = this->LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 
 			const unsigned int __temp = sizeof(float) * vertices.size();
 

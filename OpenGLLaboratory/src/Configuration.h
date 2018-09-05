@@ -1,3 +1,3 @@
 ﻿#pragma once
 
-#define		IS_HOME_PC		TRUE
+#define		IS_HOME_PC		FALSE

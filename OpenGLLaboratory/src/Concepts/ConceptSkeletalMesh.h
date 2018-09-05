@@ -1,8 +1,13 @@
 #pragma once
 #include "../Shader.h"
 #include "../Texture.h"
+#include "../IndexBuffer.h"
+#include "../VertexBuffer.h"
+#include "../VertexArray.h"
+#include "../Shader.h"
 #include "../VertexBufferLayout.h"
 #include <assimp/material.h>
+#include "../Concepts/Concept.h"
 
 #include <map>
 
@@ -39,9 +44,17 @@ namespace olab {
 
 		};
 
-		class ConceptSkeletalMesh {
+		class ConceptSkeletalMesh : public Concept {
 
 			struct Mesh {
+
+				VertexBuffer * vb;
+				VertexArray * va;
+				IndexBuffer * ib;
+				std::vector<Texture *> textures;
+				Shader * shader;
+
+				// Add any bone Data that is relevant.
 
 			};
 
@@ -65,6 +78,10 @@ namespace olab {
 			std::map<std::string, unsigned int> boneMapping; // Maps a bone to its index in BoneInfo
 
 			std::vector<BoneInfo> boneInfoData;
+
+			std::vector<ConceptSkeletalMesh::Mesh> meshes;
+
+			std::vector<Texture*> LoadMaterialTextures(aiMaterial *_mat, aiTextureType _type, std::string _typeName);
 
 		public:
 
