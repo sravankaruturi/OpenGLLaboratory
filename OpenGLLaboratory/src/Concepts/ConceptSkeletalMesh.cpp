@@ -14,6 +14,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include "../Configuration.h"
+
 namespace olab {
 	namespace concepts {
 
@@ -48,10 +50,10 @@ namespace olab {
 
 			projectionMatrix = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.f, 100.f);
 
-#if 1
-			std::string path = "Z:/IGMProfile/Desktop/Projects/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/boblamp/boblampclean.md5mesh";
+#if !IS_HOME_PC
+			const std::string path = "Z:/IGMProfile/Desktop/Projects/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/boblamp/boblampclean.md5mesh";
 #else
-			std::string path = "C:/dev/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/boblamp/boblampclean.md5mesh";
+			const std::string path = "C:/dev/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/boblamp/boblampclean.md5mesh";
 #endif
 
 			this->LoadMesh(path);

@@ -177,6 +177,7 @@
     <ClInclude Include="src\Concepts\ConceptMultipleViewports.h" />
     <ClInclude Include="src\Concepts\ConceptSkeletalMesh.h" />
     <ClInclude Include="src\Concepts\ConceptStencilTest.h" />
+    <ClInclude Include="src\Configuration.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />

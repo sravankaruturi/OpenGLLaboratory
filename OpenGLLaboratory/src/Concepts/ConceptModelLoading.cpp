@@ -10,6 +10,8 @@
 #include "../Shader.h"
 #include <glm/gtc/matrix_transform.inl>
 
+#include "../Configuration.h"
+
 namespace olab
 {
 	namespace concepts
@@ -111,7 +113,7 @@ namespace olab
 		ConceptModelLoading::ConceptModelLoading()
 		{
 
-#if 0
+#if IS_HOME_PC
 			std::string path = "C:/dev/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/nanosuit/nanosuit.obj";
 #else 
 			std::string path = "Z:/IGMProfile/Desktop/Projects/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/nanosuit/nanosuit.obj";

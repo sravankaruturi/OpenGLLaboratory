@@ -1,5 +1,4 @@
 #pragma once
-#include "ConceptModelLoading.h"
 #include "../Shader.h"
 #include "../Texture.h"
 #include "../VertexBufferLayout.h"
@@ -8,6 +7,10 @@
 #include <map>
 
 #define NUM_BONES_PER_VERTEX	4
+
+struct aiMesh;
+struct aiScene;
+struct aiNode;
 
 namespace olab {
 
@@ -36,7 +39,11 @@ namespace olab {
 
 		};
 
-		class ConceptSkeletalMesh : public ConceptModelLoading {
+		class ConceptSkeletalMesh {
+
+			struct Mesh {
+
+			};
 
 			glm::vec3 position;
 			glm::vec3 rotation;

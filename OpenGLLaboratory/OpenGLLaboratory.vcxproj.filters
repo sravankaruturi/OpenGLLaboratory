@@ -154,5 +154,8 @@
     <ClInclude Include="src\Concepts\ConceptSkeletalMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Configuration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
