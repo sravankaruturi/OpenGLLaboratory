@@ -205,8 +205,9 @@ namespace olab {
 			for (auto i = 0; i < scene->mNumMeshes; i++) {
 				numberOfVertices += scene->mMeshes[i]->mNumVertices;
 			}
+
 			// Resize the Bone Vertex Data as such.
-			vertexBoneData.resize(numberOfVertices);
+			bones.resize(numberOfVertices);
 
 			// Cycle through all the meshes. Since all the meshes are part of the aiScene, it shouldn't be a big deal.
 			numberOfMeshes = scene->mNumMeshes;
@@ -214,6 +215,10 @@ namespace olab {
 
 			std::vector<float> vertices;
 			std::vector<unsigned int> indices;
+
+			// This is used to get the vertices that are pointed to, by the bones.
+			auto base_vertex_index = 0;
+			const auto vertex_size = 5;
 
 			for (auto i = 0; i < numberOfMeshes; i++) {
 
@@ -224,6 +229,7 @@ namespace olab {
 
 				for (auto j = 0; j < current_mesh->mNumVertices; j++) {
 
+					
 					// Push each vertex onto the mesh.
 
 					float tex_x = 0.0f;
@@ -255,7 +261,49 @@ namespace olab {
 
 				}
 
-				// Lets do bones after the actual thing works.
+				// Load all the Bones for this particular AiMesh
+				{
+
+					for (auto j = 0; j < current_mesh->mNumBones; j++) {
+
+						auto bone_index = 0;
+						std::string bone_name = std::string(current_mesh->mBones[j]->mName.data);
+
+						if (boneMapping.find(bone_name) == boneMapping.end()) {
+
+							// The Bone is not there in the mapping. It means, it is a new bone.
+							// Create the new bone and add it to the mapping.
+
+							bone_index = numberOfBones;
+							numberOfBones++;
+
+							BoneInfo bi;
+							boneInfoData.push_back(bi);
+
+							// We set the bone offset matrix
+							convert_aimatrix_to_glm(boneInfoData[bone_index].boneOffset, current_mesh->mBones[j]->mOffsetMatrix);
+
+							// Add that to the mapping
+							boneMapping[bone_name] = bone_index;
+
+						}
+						else {
+							bone_index = boneMapping[bone_name];
+						}
+
+						for (auto k = 0; k < current_mesh->mBones[j]->mNumWeights; k++) {
+
+							unsigned int vertex_id = base_vertex_index + current_mesh->mBones[j]->mWeights[k].mVertexId;
+							float weight = current_mesh->mBones[j]->mWeights[k].mWeight;
+
+							bones[vertex_id].AddBoneData(bone_index, weight);
+
+						}
+
+					}
+
+				}
+
 
 				for (auto j = 0; j < current_mesh->mNumFaces; j++) {
 
@@ -283,6 +331,8 @@ namespace olab {
 				meshes[i].va->AddBuffer(*vb, vbl);
 				meshes[i].ib = new IndexBuffer(&indices[0], indices.size());
 				meshes[i].textures = diffuse_maps;
+
+				base_vertex_index += current_mesh->mNumVertices;
 
 			}
 
