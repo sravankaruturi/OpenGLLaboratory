@@ -134,6 +134,9 @@ namespace olab {
 
 		void ConceptSkeletalMesh::LoadMesh(std::string _path)
 		{
+
+			unsigned int total_number_of_vertices;
+
 			Assimp::Importer import;
 			const aiScene *scene = import.ReadFile(_path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
@@ -143,6 +146,14 @@ namespace olab {
 				return;
 			}
 			std::string directory = _path.substr(0, _path.find_last_of('/'));
+
+			// Store the number of Meshes.
+			total_number_of_vertices = 0;
+			for (auto i = 0; i < scene->mNumMeshes; i++) {
+				total_number_of_vertices += scene->mMeshes[i]->mNumVertices;
+			}
+			// Resize the Bone Vertex Data as such.
+			vertexBoneData.resize(total_number_of_vertices);
 
 			this->ProcessNode(scene->mRootNode, scene);
 
