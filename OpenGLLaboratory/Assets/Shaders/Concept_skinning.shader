@@ -1,68 +1,40 @@
 #shader vertex
-
 #version 330 core
 
-layout(location = 0) in vec3 Position;
-layout(location = 1) in vec2 TexCoord;
-layout(location = 2) in vec3 Normal;
-layout(location = 3) in ivec4 BoneIDs;
-layout(location = 4) in vec4 Weights;
+layout(location = 0) in vec3 aPosition;
+layout(location = 1) in vec2 aTexCoords;
+layout(location = 2) in ivec4 aBoneIds;
+layout(location = 3) in vec4 aWeights;
 
-out vec2 TexCoord0;
-out vec3 Normal0;
-out vec3 WorldPos0;
+uniform mat4 u_ModelMatrix;
+uniform mat4 u_ViewMatrix;
+uniform mat4 u_ProjectionMatrix;
 
-const int MAX_BONES = 100;
-
-uniform mat4 u_MVP;
-uniform mat4 u_Model;
-uniform mat4 u_Bones[MAX_BONES];
+out vec2 texCoords;
 
 void main() {
 
-	mat4 BoneTransform = u_Bones[BoneIDs[0]] * Weights[0];
-	BoneTransform += u_Bones[BoneIDs[1]] * Weights[1];
-	BoneTransform += u_Bones[BoneIDs[2]] * Weights[2];
-	BoneTransform += u_Bones[BoneIDs[3]] * Weights[3];
+	gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_ModelMatrix * vec4(aPosition, 1.0f);
+	texCoords = aTexCoords;
 
-	vec4 local_position = BoneTransform * vec4(Position, 1.0f);
+	// Do something with the input so, the shader doesn't just remove it.
+	float temp_var = aBoneIds.x + 1;
+	float temp_var2 = aWeights.x + 1;
 
-	gl_Position = u_MVP * local_position;
-
-	TexCoord0 = TexCoord;
-	Normal0 = (u_MVP * BoneTransform * vec4(Normal, 0.0)).xyz;
-	WorldPos0 = (u_MVP * local_position).xyz;
+	float temp_var3 = temp_var + temp_var2;
 
 }
 
 #shader fragment
-
 #version 330 core
-// Remove all the Light stuff. We can add them later on.
 
-in vec2 TexCoord0;
-in vec3 Normal0;
-in vec3 WorldPos0;
+in vec2 texCoords;
+uniform sampler2D u_Texture;
 
-struct VSOutput
-{
-	vec2 TexCoord;
-	vec3 Normal;
-	vec3 WorldPos;
-};
-
-uniform sampler2D u_ColorMap;
-uniform vec3 u_CameraWorldPos;
-
-out vec4 FragColour;
+layout(location = 0) out vec4 outColour;
 
 void main() {
 
-	VSOutput In;
-	In.TexCoord = TexCoord0;
-	In.Normal = normalize(Normal0);
-	In.WorldPos = WorldPos0;
-
-	FragColour = texture(u_ColorMap, In.TexCoord.xy);
+	outColour = texture(u_Texture, texCoords);
 
 }

@@ -28,6 +28,8 @@ namespace olab {
 
 		// The Bone Data for a specific vertex. It would ass the Indices of the Bones from the Bone Info Structure, and the Weight of each bone.
 		struct VertexBoneData {
+
+			// The Ids is the bone Ids.
 			unsigned int Ids[NUM_BONES_PER_VERTEX];
 			float weights[NUM_BONES_PER_VERTEX];
 
@@ -42,6 +44,14 @@ namespace olab {
 
 			void AddBoneData(unsigned int _boneID, float _weight);
 
+		};
+
+		// This represents the data you send to the buffer regarding one vertex
+		struct VertexData {
+			float position[3];
+			//float normal[3];
+			float texCoord[2];
+			VertexBoneData vbd;
 		};
 
 		// We can have a shader each for each mesh. But we are not doint that for now, for the sake of simplicity.
@@ -78,13 +88,13 @@ namespace olab {
 
 			Shader * shader;
 
-			explicit SkeletalModel(const std::string &filename);
+			explicit SkeletalModel(const std::string &filename, Shader * _shader);
 			~SkeletalModel();
 
 			void LoadModel(const std::string& _filename);
 
 			// Render
-			void Render(Shader _shader, const Renderer& _renderer);
+			void Render(const Renderer& _renderer);
 
 			// Update
 			void Update(float _deltatime);
@@ -111,7 +121,7 @@ namespace olab {
 			glm::vec3 worldUp;
 			glm::mat4 viewMatrix;
 
-			olab::Shader skinningShader;
+			olab::Shader * skinningShader;
 
 			float fieldOfView;
 			glm::mat4 projectionMatrix;

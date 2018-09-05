@@ -27,8 +27,7 @@ namespace olab {
 		}
 
 		ConceptSkeletalMesh::ConceptSkeletalMesh()
-			: skinningShader("Assets/Shaders/Concept_mvp.shader"),
-			position(0.0f, 0.0f, 0.0f),
+			: position(0.0f, 0.0f, 0.0f),
 			rotation(0.0f, 0.0f, 0.0f),
 			scale(1.0f, 1.0f, 1.0f),
 			modelMatrix(glm::mat4(1.0f)),
@@ -50,7 +49,9 @@ namespace olab {
 			const std::string path = "C:/dev/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/boblamp/boblampclean.md5mesh";
 #endif
 
-			model = new SkeletalModel(path);
+			skinningShader = new olab::Shader("Assets/Shaders/Concept_skinning.shader");
+
+			model = new SkeletalModel(path, skinningShader);
 
 			this->position = glm::vec3(0, 0, 0);
 			this->rotation = glm::vec3(90, 180, 180);
@@ -91,7 +92,7 @@ namespace olab {
 			using_shader->setMat4("u_ViewMatrix", viewMatrix);
 			using_shader->setMat4("u_ProjectionMatrix", projectionMatrix);
 
-			this->model->Render(*using_shader, _renderer);
+			this->model->Render(_renderer);
 
 		}
 
@@ -125,9 +126,10 @@ namespace olab {
 			assert(0);
 		}
 
-		SkeletalModel::SkeletalModel(const std::string & _filename)
+		SkeletalModel::SkeletalModel(const std::string & _filename, Shader * _shader)
 		{
 			filename = _filename;
+			this->shader = _shader;
 			this->LoadModel(this->filename);
 
 		}
@@ -144,22 +146,20 @@ namespace olab {
 
 			this->ProcessModel();
 
-			Shader * shader = new Shader("Assets/Shaders/Concept_mvp.shader");
-
-			shader->use();
-			shader->setMat4("u_ModelMatrix", glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
-			shader->setMat4("u_ViewMatrix", glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-			shader->setMat4("u_ProjectionMatrix", glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 100.0f));
+			this->shader->use();
+			this->shader->setMat4("u_ModelMatrix", glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
+			this->shader->setMat4("u_ViewMatrix", glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+			this->shader->setMat4("u_ProjectionMatrix", glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 100.0f));
 			
 		}
 
-		void SkeletalModel::Render(Shader _shader, const Renderer& _renderer)
+		void SkeletalModel::Render(const Renderer& _renderer)
 		{
 			// Render all the Meshes.
 			for (const auto& it : meshes) {
 
-				_shader.use();
-				_shader.setInt("u_Texture", 0);
+				shader->use();
+				shader->setInt("u_Texture", 0);
 				if (it.textures.size() > 0) {
 					it.textures[0]->Bind(0);
 				}
@@ -213,7 +213,7 @@ namespace olab {
 			numberOfMeshes = scene->mNumMeshes;
 			meshes.resize(numberOfMeshes);
 
-			std::vector<float> vertices;
+			std::vector<VertexData> vertices;
 			std::vector<unsigned int> indices;
 
 			// This is used to get the vertices that are pointed to, by the bones.
@@ -226,6 +226,8 @@ namespace olab {
 				indices.clear();
 
 				aiMesh * current_mesh = scene->mMeshes[i];
+
+				vertices.resize(current_mesh->mNumVertices);
 
 				for (auto j = 0; j < current_mesh->mNumVertices; j++) {
 
@@ -240,9 +242,9 @@ namespace olab {
 						tex_y = current_mesh->mTextureCoords[0][j].y;
 					}
 
-					vertices.push_back(current_mesh->mVertices[j].x);
-					vertices.push_back(current_mesh->mVertices[j].y);
-					vertices.push_back(current_mesh->mVertices[j].z);
+					vertices[j].position[0] = current_mesh->mVertices[j].x;
+					vertices[j].position[1] = current_mesh->mVertices[j].y;
+					vertices[j].position[2] = current_mesh->mVertices[j].z;
 
 					//if (current_mesh->HasNormals()) {
 					//	vertices.push_back(current_mesh->mNormals[j].x);
@@ -256,8 +258,8 @@ namespace olab {
 					//}
 					
 
-					vertices.push_back(tex_x);
-					vertices.push_back(tex_y);
+					vertices[j].texCoord[0] = tex_x;
+					vertices[j].texCoord[1] = tex_y;
 
 				}
 
@@ -294,13 +296,22 @@ namespace olab {
 						for (auto k = 0; k < current_mesh->mBones[j]->mNumWeights; k++) {
 
 							unsigned int vertex_id = base_vertex_index + current_mesh->mBones[j]->mWeights[k].mVertexId;
+							unsigned int local_vertex_id = current_mesh->mBones[j]->mWeights[k].mVertexId;
 							float weight = current_mesh->mBones[j]->mWeights[k].mWeight;
 
 							bones[vertex_id].AddBoneData(bone_index, weight);
+							vertices[local_vertex_id].vbd = bones[vertex_id];
 
 						}
 
 					}
+
+					//// Once you load all the Data into the bones variable, move them to the Vertices variable ??
+					//for (auto m = 0; m < current_mesh->mNumVertices; m++) {
+
+					//	
+
+					//}
 
 				}
 
@@ -319,12 +330,15 @@ namespace olab {
 				aiMaterial * material = scene->mMaterials[current_mesh->mMaterialIndex];
 				const std::vector<Texture *> diffuse_maps = this->LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 
-				VertexBuffer * vb = new VertexBuffer(&vertices[0], sizeof(float) * vertices.size());
+				VertexBuffer * vb = new VertexBuffer(&vertices[0], sizeof(VertexData) * vertices.size());
 
 				VertexBufferLayout vbl;
 				vbl.Push<float>(3);	// Pos
 				//vbl.Push<float>(3);	// Nor
 				vbl.Push<float>(2);	// Tex
+
+				vbl.Push<unsigned int>(4);	// Bone Index
+				vbl.Push<float>(4);	// Bone Weight
 
 				meshes[i].vb = vb;
 				meshes[i].va = new VertexArray();
@@ -335,8 +349,6 @@ namespace olab {
 				base_vertex_index += current_mesh->mNumVertices;
 
 			}
-
-			this->shader = new Shader("Assets/Shaders/Concept_mvp.shader");
 
 			shader->use();
 			shader->setMat4("u_ModelMatrix", glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
