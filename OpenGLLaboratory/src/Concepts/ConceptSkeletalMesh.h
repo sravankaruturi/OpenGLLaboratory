@@ -54,7 +54,7 @@ namespace olab {
 			VertexBoneData vbd;
 		};
 
-		// We can have a shader each for each mesh. But we are not doint that for now, for the sake of simplicity.
+		// We can have a shader each for each mesh. But we are not doing that for now, for the sake of simplicity.
 		struct SkeletalMesh {
 
 			VertexBuffer * vb;
@@ -103,9 +103,10 @@ namespace olab {
 
 			void ProcessModel();
 
-			
-
 			const std::vector<Texture *> LoadMaterialTextures(aiMaterial * _material, aiTextureType _textureType, std::string _param3);
+
+			// This function transforms and loads the Bone's Final Matrices.
+			void BoneTransform(float _deltatime, std::vector<glm::mat4>& _matrices);
 		};
 
 		class ConceptSkeletalMesh : public Concept {

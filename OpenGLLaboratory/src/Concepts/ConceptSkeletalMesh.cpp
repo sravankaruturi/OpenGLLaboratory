@@ -69,6 +69,8 @@ namespace olab {
 		void ConceptSkeletalMesh::OnUpdate(float _deltaTime)
 		{
 
+			model->Update(_deltaTime);
+
 			modelMatrix = glm::translate(glm::mat4(1.0f), position);
 			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
 			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -160,6 +162,15 @@ namespace olab {
 
 				shader->use();
 				shader->setInt("u_Texture", 0);
+
+				// Get the Bone Matrices from the bone info.
+				std::vector<glm::mat4> bone_matrices;
+				this->BoneTransform(0.0f, bone_matrices);
+
+				auto loc = shader->getUniformLocation("u_BoneMatrices");
+				// We transpose the matrices here because ASSIMP matrices are row major.
+				GLCall(glUniformMatrix4fv(loc, bone_matrices.size(), GL_FALSE, &bone_matrices[0][0][0]));
+
 				if (it.textures.size() > 0) {
 					it.textures[0]->Bind(0);
 				}
@@ -178,7 +189,7 @@ namespace olab {
 
 		void SkeletalModel::Update(float _deltatime)
 		{
-			throw std::logic_error("The method or operation is not implemented.");
+			// We first update just the Bone Matrices.
 		}
 
 		void SkeletalModel::SetShowSkeleton(bool _showSkeleton)
@@ -300,6 +311,9 @@ namespace olab {
 							float weight = current_mesh->mBones[j]->mWeights[k].mWeight;
 
 							bones[vertex_id].AddBoneData(bone_index, weight);
+							if (bone_index > 32) {
+								__debugbreak();
+							}
 							vertices[local_vertex_id].vbd = bones[vertex_id];
 
 						}
@@ -371,6 +385,18 @@ namespace olab {
 			}
 
 			return textures;
+		}
+
+		void SkeletalModel::BoneTransform(float _deltatime, std::vector<glm::mat4>& _matrices)
+		{
+
+			_matrices.resize(numberOfBones);
+
+			// For now, set them to Identity.
+			for (auto& it : _matrices) {
+				it = glm::mat4(1.0f);
+			}
+
 		}
 
 }
