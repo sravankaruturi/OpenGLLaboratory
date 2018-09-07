@@ -39,6 +39,14 @@ void main() {
 
 	// The Output that we get not only mean that the Lamp is bad. But also, other stuff, like the pelvis
 
+	// Make sure that all the weights add upto  1.0
+	//if (aWeights.x + aWeights.y + aWeights.z + aWeights.w < 0.9) {
+	//	colour = vec4(1, 0, 0, 1);
+	//}
+	//else {
+	//	colour = vec4(0, 1, 0, 0);
+	//}
+
 	mat4 boneTransforms = u_BoneMatrices[aBoneIds[0]] * aWeights[0];
 	boneTransforms += u_BoneMatrices[aBoneIds[1]] * aWeights[1];
 	boneTransforms += u_BoneMatrices[aBoneIds[2]] * aWeights[2];
