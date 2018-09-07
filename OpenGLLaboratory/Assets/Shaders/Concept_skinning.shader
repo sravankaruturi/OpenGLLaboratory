@@ -18,14 +18,22 @@ out vec4 colour;
 
 void main() {
 
-	if (aBoneIds.x > 32 || aBoneIds.y > 32 || aBoneIds.z > 32 || aBoneIds.w > 32) {
-		colour = vec4(1, 0, 0, 1);
-	}
-	else {
-		colour = vec4(0, 1, 0, 1);
-	}
+	//if (aBoneIds.x > 32 || aBoneIds.y > 32 || aBoneIds.z > 32 || aBoneIds.w > 32) {
+	//	colour = vec4(1, 0, 0, 1);
+	//}
+	//else {
+	//	colour = vec4(0, 1, 0, 1);
+	//}
 
-	colour = aBoneIds / 64.0;
+	colour = vec4(0, 0, 0, 1);
+
+	// The Higher the Bone Ids, the lower the colour would be., The Blacker the output would be.
+	// What we want: Lower BoneIds. and Bluer Picture.
+	colour.r = 1 / (aBoneIds[0] + 0.01);
+	colour.g = 1 / (aBoneIds[1] + 0.01);
+	colour.b = 1 / (aBoneIds[2] + 0.01);
+
+	// The Output that we get not only mean that the Lamp is bad. But also, other stuff, like the pelvis
 
 	mat4 boneTransforms = u_BoneMatrices[aBoneIds[0]] * aWeights[0];
 	boneTransforms += u_BoneMatrices[aBoneIds[1]] * aWeights[1];

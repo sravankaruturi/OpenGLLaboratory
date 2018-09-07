@@ -217,19 +217,13 @@ namespace olab {
 				numberOfVertices += scene->mMeshes[i]->mNumVertices;
 			}
 
-			// Resize the Bone Vertex Data as such.
-			bones.resize(numberOfVertices);
-			// Reset all the bone Vertex Data.
-			for (auto& it : bones) {
-				it.Reset();
-			}
-
 			// Cycle through all the meshes. Since all the meshes are part of the aiScene, it shouldn't be a big deal.
 			numberOfMeshes = scene->mNumMeshes;
 			meshes.resize(numberOfMeshes);
 
 			std::vector<VertexData> vertices;
 			std::vector<unsigned int> indices;
+			std::vector<olab::concepts::VertexBoneData> boneWeights;
 
 			// This is used to get the vertices that are pointed to, by the bones.
 			auto base_vertex_index = 0;
@@ -239,10 +233,16 @@ namespace olab {
 
 				vertices.clear();
 				indices.clear();
+				boneWeights.clear();
 
 				aiMesh * current_mesh = scene->mMeshes[i];
 
 				vertices.resize(current_mesh->mNumVertices);
+				boneWeights.resize(current_mesh->mNumVertices);
+
+				for (auto& it : boneWeights) {
+					it.Reset();
+				}
 
 				for (auto j = 0; j < current_mesh->mNumVertices; j++) {
 
@@ -317,22 +317,23 @@ namespace olab {
 							unsigned int local_vertex_id = current_mesh->mBones[j]->mWeights[k].mVertexId;
 							float weight = current_mesh->mBones[j]->mWeights[k].mWeight;
 
-							bones[vertex_id].AddBoneData(bone_index, weight);
+							// Changed here from vertex_id to local_vertex_id;
+							boneWeights[local_vertex_id].AddBoneData(bone_index, weight);
 							if (bone_index > 32) {
 								__debugbreak();
 							}
-							vertices[local_vertex_id].vbd = bones[vertex_id];
+							//vertices[local_vertex_id].vbd = boneWeights[local_vertex_id];
 
 						}
 
 					}
 
-					//// Once you load all the Data into the bones variable, move them to the Vertices variable ??
-					//for (auto m = 0; m < current_mesh->mNumVertices; m++) {
+					// Once you load all the Data into the bones variable, move them to the Vertices variable ??
+					for (auto m = 0; m < current_mesh->mNumVertices; m++) {
 
-					//	
+						vertices[m].vbd = boneWeights[m];
 
-					//}
+					}
 
 				}
 

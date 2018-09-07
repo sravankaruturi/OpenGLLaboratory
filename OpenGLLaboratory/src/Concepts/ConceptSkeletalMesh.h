@@ -63,6 +63,7 @@ namespace olab {
 			std::vector<Texture *> textures;
 
 			// Add any bone Data that is relevant.
+			std::vector<VertexBoneData> bones;
 
 		};
 
@@ -73,7 +74,7 @@ namespace olab {
 
 			std::map<std::string, unsigned int> boneMapping; // Maps a bone to its index in BoneInfo
 
-			std::vector<BoneInfo> boneInfoData;
+			std::vector<olab::concepts::BoneInfo> boneInfoData;
 
 			bool showSkeleton = false;
 
@@ -81,8 +82,6 @@ namespace olab {
 			unsigned int numberOfIndices;
 			unsigned int numberOfMeshes;
 			unsigned int numberOfBones = 0;
-
-			std::vector<VertexBoneData> bones;
 
 		public:
 
