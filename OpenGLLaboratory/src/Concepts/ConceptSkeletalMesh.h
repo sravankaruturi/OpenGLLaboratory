@@ -57,25 +57,26 @@ namespace olab {
 		// We can have a shader each for each mesh. But we are not doing that for now, for the sake of simplicity.
 		struct SkeletalMesh {
 
+			// Vertex Buffer should contain all the data needed to render stuff.
+
 			VertexBuffer * vb;
 			VertexArray * va;
 			IndexBuffer * ib;
 			std::vector<Texture *> textures;
 
-			// Add any bone Data that is relevant.
-			std::vector<VertexBoneData> bones;
+			// Store this for Debug Purposes.
+			std::vector<VertexBoneData> vertexBoneData;
 
 		};
 
 		class SkeletalModel {
 
 			std::string filename;
+		public:
 			std::vector<SkeletalMesh> meshes;
 
-			std::map<std::string, unsigned int> boneMapping; // Maps a bone to its index in BoneInfo
 
-			std::vector<olab::concepts::BoneInfo> boneInfoData;
-
+		private:
 			bool showSkeleton = false;
 
 			unsigned int numberOfVertices;
@@ -84,6 +85,10 @@ namespace olab {
 			unsigned int numberOfBones = 0;
 
 		public:
+
+			std::map<std::string, unsigned int> boneMapping; // Maps a bone to its index in BoneInfo
+
+			std::vector<olab::concepts::BoneInfo> boneInfoData;
 
 			Shader * shader;
 
@@ -127,6 +132,17 @@ namespace olab {
 			glm::mat4 projectionMatrix;
 
 			SkeletalModel * model;
+
+			/* ImGUi Toggles */
+
+			bool showBoneWindow = false;
+			bool showBoneInfoWindow = false;
+			bool showBoneDataPerMesh = false;
+			SkeletalMesh * selected_mesh = nullptr;
+
+			/*Imgui Toggles End*/
+
+			std::vector<VertexBoneData> boneDataForMesh;
 
 		public:
 

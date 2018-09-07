@@ -15,6 +15,16 @@
 namespace olab {
 	namespace concepts {
 
+		void display_matrix_in_imgui(const glm::mat4& _mat) {
+			for (auto i = 0; i < 4; i++) {
+				for (auto j = 0; j < 4; j++) {
+					ImGui::Text("%.2f ", _mat[i][j]);
+					ImGui::SameLine();
+				}
+				ImGui::Text("\n");
+			}
+		}
+
 		// This just copies. This function doesn't transpose matrices.
 		void convert_aimatrix_to_glm(glm::mat4& _glmMat4, const aiMatrix4x4& _aiMatrix) {
 
@@ -111,6 +121,83 @@ namespace olab {
 			ImGui::Separator();
 			ImGui::Text("Projection Matrix");
 			ImGui::SliderFloat("Field Of View", &fieldOfView, 0.5f, 90.0f, "%.3f", 2.0f);
+
+			ImGui::Separator();
+
+			if (ImGui::Button( (!showBoneWindow) ? "Show Bone mapping" : "Hide Bone Mapping")) {
+				this->showBoneWindow = !showBoneWindow;
+			}
+
+			if (ImGui::Button((!showBoneInfoWindow) ? "Show Bone Info" : "Hide Bone Info")) {
+				this->showBoneInfoWindow = !showBoneInfoWindow;
+			}
+
+			if (ImGui::Button((!showBoneDataPerMesh) ? "Show Vertex Data for the Lamp" : "Hide Vertex Data for the Lamp")) {
+				this->showBoneDataPerMesh = !showBoneDataPerMesh;
+			}
+
+			if (this->showBoneInfoWindow) {
+
+				ImGui::Begin("Bone Info", &showBoneInfoWindow);
+
+				// We can display the Matrices for each Bone I guess.
+				for (const auto& it : this->model->boneInfoData) {
+					display_matrix_in_imgui(it.boneOffset);
+					ImGui::Separator();
+				}
+
+				ImGui::End();
+
+			}
+
+			if (this->showBoneWindow) {
+
+				ImGui::Begin("Bone Mapping", &showBoneWindow);
+
+				ImGui::Text("Bone/Joints Debug Data");
+				ImGui::Text("Bones: ");
+				// Now for each Joint, we display the data. Stored, in BoneInfo
+				for (const auto& it : this->model->boneMapping) {
+					ImGui::Text((it.first + std::string(" : ") + std::to_string(it.second)).c_str());
+				}
+
+				ImGui::End();
+
+			}
+
+			if (this->showBoneDataPerMesh) {
+
+				ImGui::Begin("Bone Debug for Lamp", &showBoneDataPerMesh);
+
+				// Show all the meshes in the Model and I'll click on what I want.
+				auto temp_index = 0;
+				for (auto& it : this->model->meshes) {
+
+					std::string name = "Select Mesh - " + std::to_string(temp_index);
+					if (ImGui::Button(name.c_str())) {
+						selected_mesh = &it;
+					}
+					temp_index++;
+
+				}
+
+				if (nullptr != selected_mesh) {
+
+					// Display the Bone Vertex Data
+					for (const auto& itit : selected_mesh->vertexBoneData) {
+						// For Each Vertex, Display the Data.
+						// This is Dumb
+
+						ImGui::Text("%d\t %d\t %d\t %d\t", itit.Ids[0], itit.Ids[1], itit.Ids[2], itit.Ids[3]);
+						ImGui::Text("%.3f\t %.3f\t %.3f\t %.3f\t", itit.weights[0], itit.weights[1], itit.weights[2], itit.weights[3] );
+						ImGui::Separator();
+
+					}
+				}
+
+				ImGui::End();
+
+			}
 
 		}
 
@@ -259,19 +346,7 @@ namespace olab {
 
 					vertices[j].position[0] = current_mesh->mVertices[j].x;
 					vertices[j].position[1] = current_mesh->mVertices[j].y;
-					vertices[j].position[2] = current_mesh->mVertices[j].z;
-
-					//if (current_mesh->HasNormals()) {
-					//	vertices.push_back(current_mesh->mNormals[j].x);
-					//	vertices.push_back(current_mesh->mNormals[j].y);
-					//	vertices.push_back(current_mesh->mNormals[j].z);
-					//}
-					//else {
-					//	vertices.push_back(0.0f);
-					//	vertices.push_back(0.0f);
-					//	vertices.push_back(0.0f);
-					//}
-					
+					vertices[j].position[2] = current_mesh->mVertices[j].z;				
 
 					vertices[j].texCoord[0] = tex_x;
 					vertices[j].texCoord[1] = tex_y;
@@ -335,6 +410,8 @@ namespace olab {
 
 					}
 
+					meshes[i].vertexBoneData = boneWeights;
+
 				}
 
 
@@ -355,11 +432,12 @@ namespace olab {
 				VertexBuffer * vb = new VertexBuffer(&vertices[0], sizeof(VertexData) * vertices.size());
 
 				VertexBufferLayout vbl;
+
 				vbl.Push<float>(3);	// Pos
 				//vbl.Push<float>(3);	// Nor
 				vbl.Push<float>(2);	// Tex
 
-				vbl.Push<unsigned int>(4);	// Bone Index
+				vbl.Push<int>(4);	// Bone Index
 				vbl.Push<float>(4);	// Bone Weight
 
 				// Check for stupid bone indices

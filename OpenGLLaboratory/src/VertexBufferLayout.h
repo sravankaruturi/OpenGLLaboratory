@@ -18,6 +18,7 @@ namespace olab {
 			case GL_FLOAT:			return 4;
 			case GL_UNSIGNED_INT:	return 4;
 			case GL_UNSIGNED_BYTE:	return 1;
+			case GL_INT:			return 4;
 			default:
 				ASSERT(false);
 				return 0;
@@ -65,6 +66,12 @@ namespace olab {
 		void Push<unsigned char>(unsigned int _count) {
 			elements.push_back({ GL_UNSIGNED_BYTE,  _count, GL_TRUE });
 			stride += _count * VertexBufferElement::GetSizeOfType(GL_UNSIGNED_BYTE);
+		}
+
+		template<>
+		void Push<int>(unsigned int _count) {
+			elements.push_back({ GL_INT,  _count, GL_TRUE });
+			stride += _count * VertexBufferElement::GetSizeOfType(GL_INT);
 		}
 
 		inline unsigned int GetStride() const { return stride; }

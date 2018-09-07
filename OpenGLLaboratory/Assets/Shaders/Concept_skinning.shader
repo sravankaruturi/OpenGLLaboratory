@@ -5,6 +5,7 @@ const int MAX_BONES = 100;
 
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec2 aTexCoords;
+//layout(location = 2) in uvec4 aBoneIds;
 layout(location = 2) in ivec4 aBoneIds;
 layout(location = 3) in vec4 aWeights;
 
@@ -18,20 +19,23 @@ out vec4 colour;
 
 void main() {
 
-	//if (aBoneIds.x > 32 || aBoneIds.y > 32 || aBoneIds.z > 32 || aBoneIds.w > 32) {
-	//	colour = vec4(1, 0, 0, 1);
-	//}
-	//else {
-	//	colour = vec4(0, 1, 0, 1);
-	//}
+	colour = vec4(1, 1, 1, 1);
 
-	colour = vec4(0, 0, 0, 1);
+	if (aBoneIds.y > 32) {
+		/*if (aBoneIds.x > 32 || aBoneIds.y > 32 || aBoneIds.z > 32 || aBoneIds.w > 32) {*/
+		colour = vec4(1, 0, 0, 1);
+	}
+	else {
+		colour = vec4(0, 1, 0, 1);
+	}
+
+	/*colour = vec4(0, 0, 0, 1);*/
 
 	// The Higher the Bone Ids, the lower the colour would be., The Blacker the output would be.
 	// What we want: Lower BoneIds. and Bluer Picture.
-	colour.r = 1 / (aBoneIds[0] + 0.01);
+	/*colour.r = 1 / (aBoneIds[0] + 0.01);
 	colour.g = 1 / (aBoneIds[1] + 0.01);
-	colour.b = 1 / (aBoneIds[2] + 0.01);
+	colour.b = 1 / (aBoneIds[2] + 0.01);*/
 
 	// The Output that we get not only mean that the Lamp is bad. But also, other stuff, like the pelvis
 
