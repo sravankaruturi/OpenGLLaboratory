@@ -14,16 +14,18 @@ uniform mat4 u_ProjectionMatrix;
 uniform mat4 u_BoneMatrices[MAX_BONES];
 
 out vec2 texCoords;
-out vec3 colour;
+out vec4 colour;
 
 void main() {
 
-	if (aBoneIds[0] > 32 || aBoneIds[1] > 32 || aBoneIds[2] > 32 || aBoneIds[3] > 32) {
-		colour = vec3(1, 0, 0);
+	if (aBoneIds.x > 32 || aBoneIds.y > 32 || aBoneIds.z > 32 || aBoneIds.w > 32) {
+		colour = vec4(1, 0, 0, 1);
 	}
 	else {
-		colour = vec3(0, 1, 0);
+		colour = vec4(0, 1, 0, 1);
 	}
+
+	colour = aBoneIds / 64.0;
 
 	mat4 boneTransforms = u_BoneMatrices[aBoneIds[0]] * aWeights[0];
 	boneTransforms += u_BoneMatrices[aBoneIds[1]] * aWeights[1];
@@ -52,7 +54,7 @@ void main() {
 #version 330 core
 
 in vec2 texCoords;
-in vec3 colour;
+in vec4 colour;
 
 uniform sampler2D u_Texture;
 
@@ -60,6 +62,6 @@ layout(location = 0) out vec4 outColour;
 
 void main() {
 
-	outColour = mix(texture(u_Texture, texCoords), vec4(colour, 1.0f), 0.9);
+	outColour = mix(texture(u_Texture, texCoords), colour, 0.9);
 
 }

@@ -30,8 +30,8 @@ namespace olab {
 		struct VertexBoneData {
 
 			// The Ids is the bone Ids.
-			unsigned int Ids[NUM_BONES_PER_VERTEX];
-			float weights[NUM_BONES_PER_VERTEX];
+			unsigned int Ids[NUM_BONES_PER_VERTEX] = {0, 0, 0, 0};
+			float weights[NUM_BONES_PER_VERTEX] = {0, 0, 0, 0};
 
 			VertexBoneData() {
 				Reset();

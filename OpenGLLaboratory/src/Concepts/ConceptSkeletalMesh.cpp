@@ -219,6 +219,10 @@ namespace olab {
 
 			// Resize the Bone Vertex Data as such.
 			bones.resize(numberOfVertices);
+			// Reset all the bone Vertex Data.
+			for (auto& it : bones) {
+				it.Reset();
+			}
 
 			// Cycle through all the meshes. Since all the meshes are part of the aiScene, it shouldn't be a big deal.
 			numberOfMeshes = scene->mNumMeshes;
@@ -304,6 +308,9 @@ namespace olab {
 							bone_index = boneMapping[bone_name];
 						}
 
+						// TODO: The problem might lie with how the vertex ID is perceived by various meshes vs the complete model. Figure out how to fix it.
+						// TODO: White boarding/drawing might help. Of course it might help a lot if we know what the vertex ID actually is.
+						// TODO: Go through Assimp Code to deal with that as the Documentation is not helpful.
 						for (auto k = 0; k < current_mesh->mBones[j]->mNumWeights; k++) {
 
 							unsigned int vertex_id = base_vertex_index + current_mesh->mBones[j]->mWeights[k].mVertexId;
@@ -353,6 +360,15 @@ namespace olab {
 
 				vbl.Push<unsigned int>(4);	// Bone Index
 				vbl.Push<float>(4);	// Bone Weight
+
+				// Check for stupid bone indices
+				{
+					for (auto temp = 0; temp < vertices.size(); temp++) {
+						if (vertices[temp].vbd.Ids[3] > 32) {
+							__debugbreak();
+						}
+					}
+				}
 
 				meshes[i].vb = vb;
 				meshes[i].va = new VertexArray();
