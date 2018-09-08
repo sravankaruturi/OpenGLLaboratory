@@ -72,7 +72,10 @@
     <ClCompile Include="src\Concepts\ConceptStencilTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Concepts\ConceptSkeletalMesh.cpp">
+    <ClCompile Include="src\Concepts\ConceptSkeletalMesh\ConceptSkeletalMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Concepts\ConceptSkeletalMesh\SkeletalModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -151,10 +154,13 @@
     <ClInclude Include="src\Concepts\ConceptStencilTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Concepts\ConceptSkeletalMesh.h">
+    <ClInclude Include="src\Configuration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Configuration.h">
+    <ClInclude Include="src\Concepts\ConceptSkeletalMesh\ConceptSkeletalMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Concepts\ConceptSkeletalMesh\SkeletalModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

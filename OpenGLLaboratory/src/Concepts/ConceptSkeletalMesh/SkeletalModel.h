@@ -1,27 +1,26 @@
 #pragma once
-#include "../Shader.h"
-#include "../Texture.h"
-#include "../IndexBuffer.h"
-#include "../VertexBuffer.h"
-#include "../VertexArray.h"
-#include "../Shader.h"
-#include "../VertexBufferLayout.h"
-#include <assimp/material.h>
-#include "../Concepts/Concept.h"
+
+#include "../../VertexBuffer.h"
+#include "../../IndexBuffer.h"
+#include "../../VertexArray.h"
+#include "../../VertexBufferLayout.h"
+
+#include "../../Shader.h"
+#include "../../Texture.h"
 
 #include <map>
 #include <assimp/anim.h>
 #include <assimp/Importer.hpp>
-
-#define NUM_BONES_PER_VERTEX	4
+#include <assimp/material.h>
 
 struct aiAnimation;
 struct aiMesh;
 struct aiScene;
 struct aiNode;
 
-namespace olab {
+#define NUM_BONES_PER_VERTEX	4
 
+namespace olab {
 	namespace concepts {
 
 		struct BoneInfo {
@@ -33,8 +32,8 @@ namespace olab {
 		struct VertexBoneData {
 
 			// The Ids is the bone Ids.
-			unsigned int Ids[NUM_BONES_PER_VERTEX] = {0, 0, 0, 0};
-			float weights[NUM_BONES_PER_VERTEX] = {0, 0, 0, 0};
+			unsigned int Ids[NUM_BONES_PER_VERTEX] = { 0, 0, 0, 0 };
+			float weights[NUM_BONES_PER_VERTEX] = { 0, 0, 0, 0 };
 
 			VertexBoneData() {
 				Reset();
@@ -135,48 +134,5 @@ namespace olab {
 
 		};
 
-		class ConceptSkeletalMesh : public Concept {
-
-			glm::vec3 position;
-			glm::vec3 rotation;
-			glm::vec3 scale;
-
-			glm::mat4 modelMatrix;
-
-			glm::vec3 cameraPosition;
-			glm::vec3 cameraFront;
-			glm::vec3 worldUp;
-			glm::mat4 viewMatrix;
-
-			olab::Shader * skinningShader;
-
-			float fieldOfView;
-			glm::mat4 projectionMatrix;
-
-			SkeletalModel * model;
-
-			/* ImGUi Toggles */
-
-			bool showBoneWindow = false;
-			bool showBoneInfoWindow = false;
-			bool showBoneDataPerMesh = false;
-			SkeletalMesh * selected_mesh = nullptr;
-
-			/*Imgui Toggles End*/
-
-			std::vector<VertexBoneData> boneDataForMesh;
-
-		public:
-
-			ConceptSkeletalMesh();
-			~ConceptSkeletalMesh();
-
-			void OnUpdate(float _deltaTime);
-			void OnRender(const Renderer& _renderer);
-			void OnImGuiRender();
-
-		};
-
 	}
-
 }

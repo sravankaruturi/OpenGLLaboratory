@@ -1,29 +1,13 @@
-#include "ConceptSkeletalMesh.h"
-#include <assimp/Importer.hpp>
+
+#include "SkeletalModel.h"
+
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <filesystem>
-#include <iostream>
 
 #include <glm/gtc/matrix_transform.inl>
-#include "../../external_files/ImGUI/imgui.h"
-
-#include <GLFW/glfw3.h>
-
-#include "../Configuration.h"
 
 namespace olab {
 	namespace concepts {
-
-		void display_matrix_in_imgui(const glm::mat4& _mat) {
-			for (auto i = 0; i < 4; i++) {
-				for (auto j = 0; j < 4; j++) {
-					ImGui::Text("%.2f ", _mat[i][j]);
-					ImGui::SameLine();
-				}
-				ImGui::Text("\n");
-			}
-		}
 
 		// This just copies. This function doesn't transpose matrices.
 		void convert_aimatrix_to_glm(glm::mat4& _glmMat4, const aiMatrix4x4& _aiMatrix) {
@@ -58,176 +42,9 @@ namespace olab {
 
 		}
 
-		ConceptSkeletalMesh::ConceptSkeletalMesh()
-			: position(0.0f, 0.0f, 0.0f),
-			rotation(0.0f, 0.0f, 0.0f),
-			scale(1.0f, 1.0f, 1.0f),
-			modelMatrix(glm::mat4(1.0f)),
-			worldUp(0.0f, 1.0f, 0.0f),
-			fieldOfView(45.0f)
-		{
-
-			std::cout << std::endl << "Clearing existing Meshes" << std::endl;
-
-			cameraPosition = glm::vec3(0.0f, 0.0f, 10.0f);
-			cameraFront = glm::vec3(.0f, 0.0f, -1.0f);
-			viewMatrix = glm::lookAt(cameraPosition, cameraPosition + cameraFront, worldUp);
-
-			projectionMatrix = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.f, 100.f);
-
-#if !IS_HOME_PC
-			const std::string path = "Z:/IGMProfile/Desktop/Projects/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/boblamp/boblampclean.md5mesh";
-#else
-			const std::string path = "C:/dev/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/boblamp/boblampclean.md5mesh";
-#endif
-
-			skinningShader = new olab::Shader("Assets/Shaders/Concept_skinning.shader");
-
-			model = new SkeletalModel(path, skinningShader);
-
-			this->position = glm::vec3(0, 0, 0);
-			this->rotation = glm::vec3(90, 180, 180);
-			this->scale = glm::vec3(0.2, 0.2, 0.2);
-
-			this->cameraPosition = glm::vec3(0, 6, 22);
-
-		}
-
-		ConceptSkeletalMesh::~ConceptSkeletalMesh()
-		{
-			delete model;
-		}
-
-		void ConceptSkeletalMesh::OnUpdate(float _deltaTime)
-		{
-
-			model->Update(_deltaTime);
-
-			modelMatrix = glm::translate(glm::mat4(1.0f), position);
-			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-			modelMatrix = glm::scale(modelMatrix, scale);
-
-			viewMatrix = glm::lookAt(cameraPosition, cameraPosition + cameraFront, worldUp);
-
-			projectionMatrix = glm::perspective(glm::radians(fieldOfView), 16.0f / 9.0f, 0.1f, 100.f);
-
-		}
-
-		void ConceptSkeletalMesh::OnRender(const Renderer& _renderer)
-		{
-
-			Shader * using_shader = model->shader;
-
-			using_shader->use();
-			using_shader->setInt("u_Texture", 0);
-			using_shader->setMat4("u_ModelMatrix", modelMatrix);
-			using_shader->setMat4("u_ViewMatrix", viewMatrix);
-			using_shader->setMat4("u_ProjectionMatrix", projectionMatrix);
-
-			auto total_time = glfwGetTime();
-
-			this->model->Render(total_time, _renderer);
-
-		}
-
-		void ConceptSkeletalMesh::OnImGuiRender()
-		{
-			
-			ImGui::Text("Model Matrix");
-			ImGui::InputFloat3("Position", glm::value_ptr(position));
-			ImGui::InputFloat3("Rotation", glm::value_ptr(rotation));
-			ImGui::InputFloat3("Scale", glm::value_ptr(scale));
-			ImGui::Separator();
-			ImGui::Text("View Matrix");
-			ImGui::SliderFloat3("Camera Position", glm::value_ptr(cameraPosition), 0.5f, 50.0f, "%.3f", 2.0f);
-			ImGui::Separator();
-			ImGui::Text("Projection Matrix");
-			ImGui::SliderFloat("Field Of View", &fieldOfView, 0.5f, 90.0f, "%.3f", 2.0f);
-
-			ImGui::Separator();
-
-			if (ImGui::Button( (!showBoneWindow) ? "Show Bone mapping" : "Hide Bone Mapping")) {
-				this->showBoneWindow = !showBoneWindow;
-			}
-
-			if (ImGui::Button((!showBoneInfoWindow) ? "Show Bone Info" : "Hide Bone Info")) {
-				this->showBoneInfoWindow = !showBoneInfoWindow;
-			}
-
-			if (ImGui::Button((!showBoneDataPerMesh) ? "Show Vertex Data for the Lamp" : "Hide Vertex Data for the Lamp")) {
-				this->showBoneDataPerMesh = !showBoneDataPerMesh;
-			}
-
-			if (this->showBoneInfoWindow) {
-
-				ImGui::Begin("Bone Info", &showBoneInfoWindow);
-
-				// We can display the Matrices for each Bone I guess.
-				for (const auto& it : this->model->boneInfoData) {
-					display_matrix_in_imgui(it.boneOffset);
-					ImGui::Separator();
-				}
-
-				ImGui::End();
-
-			}
-
-			if (this->showBoneWindow) {
-
-				ImGui::Begin("Bone Mapping", &showBoneWindow);
-
-				ImGui::Text("Bone/Joints Debug Data");
-				ImGui::Text("Bones: ");
-				// Now for each Joint, we display the data. Stored, in BoneInfo
-				for (const auto& it : this->model->boneMapping) {
-					ImGui::Text((it.first + std::string(" : ") + std::to_string(it.second)).c_str());
-				}
-
-				ImGui::End();
-
-			}
-
-			if (this->showBoneDataPerMesh) {
-
-				ImGui::Begin("Bone Debug for Lamp", &showBoneDataPerMesh);
-
-				// Show all the meshes in the Model and I'll click on what I want.
-				auto temp_index = 0;
-				for (auto& it : this->model->meshes) {
-
-					std::string name = "Select Mesh - " + std::to_string(temp_index);
-					if (ImGui::Button(name.c_str())) {
-						selected_mesh = &it;
-					}
-					temp_index++;
-
-				}
-
-				if (nullptr != selected_mesh) {
-
-					// Display the Bone Vertex Data
-					for (const auto& itit : selected_mesh->vertexBoneData) {
-						// For Each Vertex, Display the Data.
-						// This is Dumb
-
-						ImGui::Text("%d\t %d\t %d\t %d\t", itit.Ids[0], itit.Ids[1], itit.Ids[2], itit.Ids[3]);
-						ImGui::Text("%.3f\t %.3f\t %.3f\t %.3f\t", itit.weights[0], itit.weights[1], itit.weights[2], itit.weights[3] );
-						ImGui::Separator();
-
-					}
-				}
-
-				ImGui::End();
-
-			}
-
-		}
-
 		void VertexBoneData::AddBoneData(unsigned int _boneID, float _weight)
 		{
-			for (auto i = 0; i < sizeof(Ids)/sizeof(unsigned int); i++) {
+			for (auto i = 0; i < sizeof(Ids) / sizeof(unsigned int); i++) {
 				if (weights[i] == 0.0) {
 					Ids[i] = _boneID;
 					weights[i] = _weight;
@@ -255,7 +72,7 @@ namespace olab {
 
 		unsigned int SkeletalModel::FindRotation(float _animationTime, const aiNodeAnim* _nodeAnim)
 		{
-			assert(_nodeAnim->mNumRotationKeys> 0);
+			assert(_nodeAnim->mNumRotationKeys > 0);
 			for (unsigned int i = 0; i < _nodeAnim->mNumRotationKeys - 1; i++) {
 				if (_animationTime < (float)_nodeAnim->mRotationKeys[i + 1].mTime) {
 					return i;
@@ -270,7 +87,7 @@ namespace olab {
 		unsigned int SkeletalModel::FindPosition(float _animationTime, const aiNodeAnim* _nodeAnim)
 		{
 			assert(_nodeAnim->mNumPositionKeys > 0);
-			for (unsigned int i = 0; i < _nodeAnim->mNumPositionKeys- 1; i++) {
+			for (unsigned int i = 0; i < _nodeAnim->mNumPositionKeys - 1; i++) {
 				if (_animationTime < (float)_nodeAnim->mPositionKeys[i + 1].mTime) {
 					return i;
 				}
@@ -388,7 +205,7 @@ namespace olab {
 			this->shader->setMat4("u_ModelMatrix", glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
 			this->shader->setMat4("u_ViewMatrix", glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 			this->shader->setMat4("u_ProjectionMatrix", glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 100.0f));
-			
+
 		}
 
 		void SkeletalModel::Render(float _totalTime, const Renderer& _renderer)
@@ -485,7 +302,7 @@ namespace olab {
 
 				for (auto j = 0; j < current_mesh->mNumVertices; j++) {
 
-					
+
 					// Push each vertex onto the mesh.
 
 					float tex_x = 0.0f;
@@ -498,7 +315,7 @@ namespace olab {
 
 					vertices[j].position[0] = current_mesh->mVertices[j].x;
 					vertices[j].position[1] = current_mesh->mVertices[j].y;
-					vertices[j].position[2] = current_mesh->mVertices[j].z;				
+					vertices[j].position[2] = current_mesh->mVertices[j].z;
 
 					vertices[j].texCoord[0] = tex_x;
 					vertices[j].texCoord[1] = tex_y;
@@ -582,13 +399,13 @@ namespace olab {
 				VertexBufferLayout vbl;
 
 				vbl.Push<float>(3);	// Pos
-				//vbl.Push<float>(3);	// Nor
+									//vbl.Push<float>(3);	// Nor
 				vbl.Push<float>(2);	// Tex
 
 				vbl.Push<unsigned int>(4);	// Bone Index
 				vbl.Push<float>(4);	// Bone Weight
 
-				// Check for stupid bone indices
+									// Check for stupid bone indices
 				{
 					for (auto temp = 0; temp < vertices.size(); temp++) {
 						if (vertices[temp].vbd.Ids[3] > 32) {
@@ -669,19 +486,6 @@ namespace olab {
 
 				glm::mat4 transformation_matrix(1.0f);
 
-				//// Interpolate stuff..
-				//aiVector3D scaling;
-				//CalcInterpolatedScaling(scaling, _animationTime, node_anim);
-				//transformation_matrix = glm::scale(transformation_matrix, glm::vec3(scaling.x, scaling.y, scaling.z));
-
-				//aiQuaternion rotation;
-				//CalcInterpolatedRotation(rotation, _animationTime, node_anim);
-
-				//glm::mat4 rotataion_matrix;
-				//convert_aimatrix_to_glm(rotataion_matrix, rotation.GetMatrix());
-
-				//transformation_matrix *= rotataion_matrix;
-
 				aiVector3D translation;
 				CalcInterpolatedPosition(translation, _animationTime, node_anim);
 
@@ -694,12 +498,14 @@ namespace olab {
 			glm::mat4 global_transformation = node_transformation * _parentTransform;
 
 			if (boneMapping.find(node_name) != boneMapping.end()) {
+
 				// Update the Global Transformation.
 				auto bone_index = boneMapping[node_name];
 
 				//boneInfoData[bone_index].finalTransformation = globalInverseTransform * global_transformation * boneInfoData[bone_index].boneOffset;
 				//boneInfoData[bone_index].finalTransformation = boneInfoData[bone_index].boneOffset * global_transformation * globalInverseTransform;
-				boneInfoData[bone_index].finalTransformation = glm::mat4(1.0f);
+				boneInfoData[bone_index].finalTransformation = boneInfoData[bone_index].boneOffset * global_transformation * globalInverseTransform;
+				//boneInfoData[bone_index].finalTransformation = glm::mat4(1.0f);
 			}
 
 			for (auto i = 0; i < _node->mNumChildren; i++) {
@@ -711,7 +517,7 @@ namespace olab {
 		const aiNodeAnim * SkeletalModel::FindNodeAnim(const aiAnimation * _animation, const std::string& _nodeName)
 		{
 
-			for (auto i = 0 ; i < _animation->mNumChannels; i++)
+			for (auto i = 0; i < _animation->mNumChannels; i++)
 			{
 				const aiNodeAnim * node_anim = _animation->mChannels[i];
 
@@ -722,5 +528,6 @@ namespace olab {
 
 			return nullptr;
 		}
+
 	}
 }

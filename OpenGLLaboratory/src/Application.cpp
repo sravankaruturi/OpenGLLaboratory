@@ -13,7 +13,7 @@
 #include "Concepts/ConceptModelLoading.h"
 #include "Concepts/ConceptStencilTest.h"
 #include "Concepts/ConceptMultipleViewports.h"
-#include "Concepts/ConceptSkeletalMesh.h"
+#include "Concepts/ConceptSkeletalMesh/ConceptSkeletalMesh.h"
 
 #define _CRTDBG_MAP_ALLOC  
 #include <stdlib.h>  

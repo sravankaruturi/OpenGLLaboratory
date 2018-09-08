@@ -143,7 +143,8 @@
     <ClCompile Include="src\Concepts\ConceptModelLoading.cpp" />
     <ClCompile Include="src\Concepts\ConceptModelViewProjection.cpp" />
     <ClCompile Include="src\Concepts\ConceptMultipleViewports.cpp" />
-    <ClCompile Include="src\Concepts\ConceptSkeletalMesh.cpp" />
+    <ClCompile Include="src\Concepts\ConceptSkeletalMesh\ConceptSkeletalMesh.cpp" />
+    <ClCompile Include="src\Concepts\ConceptSkeletalMesh\SkeletalModel.cpp" />
     <ClCompile Include="src\Concepts\ConceptStencilTest.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
@@ -175,7 +176,8 @@
     <ClInclude Include="src\Concepts\ConceptModelLoading.h" />
     <ClInclude Include="src\Concepts\ConceptModelViewProjection.h" />
     <ClInclude Include="src\Concepts\ConceptMultipleViewports.h" />
-    <ClInclude Include="src\Concepts\ConceptSkeletalMesh.h" />
+    <ClInclude Include="src\Concepts\ConceptSkeletalMesh\ConceptSkeletalMesh.h" />
+    <ClInclude Include="src\Concepts\ConceptSkeletalMesh\SkeletalModel.h" />
     <ClInclude Include="src\Concepts\ConceptStencilTest.h" />
     <ClInclude Include="src\Configuration.h" />
     <ClInclude Include="src\IndexBuffer.h" />
