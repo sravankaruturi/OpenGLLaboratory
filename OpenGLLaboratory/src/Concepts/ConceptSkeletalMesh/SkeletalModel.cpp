@@ -14,7 +14,7 @@ namespace olab {
 
 			for (auto i = 0; i < 4; i++) {
 				for (auto j = 0; j < 4; j++) {
-					_glmMat4[i][j] = _aiMatrix[i][j];
+					_glmMat4[i][j] = _aiMatrix[j][i];
 				}
 			}
 
@@ -25,7 +25,7 @@ namespace olab {
 
 			for (auto i = 0; i < 3; i++) {
 				for (auto j = 0; j < 3; j++) {
-					_glmMat4[i][j] = _aiMatrix[i][j];
+					_glmMat4[i][j] = _aiMatrix[j][i];
 				}
 			}
 
@@ -484,18 +484,32 @@ namespace olab {
 
 			if (node_anim) {
 
-				glm::mat4 transformation_matrix(1.0f);
+				//glm::mat4 transformation_matrix(1.0f);
+
+				glm::mat4 translation_matrix(1.0f);
+				glm::mat4 rotation_matrix(1.0f);
+				glm::mat4 scaling_matrix(1.0f);
 
 				aiVector3D translation;
 				CalcInterpolatedPosition(translation, _animationTime, node_anim);
 
-				transformation_matrix = glm::translate(transformation_matrix, glm::vec3(translation.x, translation.y, translation.z));
+				translation_matrix = glm::translate(translation_matrix, glm::vec3(translation.x, translation.y, translation.z));
 
-				node_transformation = transformation_matrix;
+				aiQuaternion rotation;
+				CalcInterpolatedRotation(rotation, _animationTime, node_anim);
+
+				convert_aimatrix_to_glm(rotation_matrix, rotation.GetMatrix());
+
+				aiVector3D scaling;
+				CalcInterpolatedScaling(scaling, _animationTime, node_anim);
+				scaling_matrix = glm::scale(scaling_matrix, glm::vec3(scaling.x, scaling.y, scaling.z));
+
+				//node_transformation = scaling_matrix * rotation_matrix * translation_matrix;
+				node_transformation = translation_matrix * rotation_matrix * scaling_matrix;
 
 			}
 
-			glm::mat4 global_transformation = node_transformation * _parentTransform;
+			glm::mat4 global_transformation =  _parentTransform * node_transformation;
 
 			if (boneMapping.find(node_name) != boneMapping.end()) {
 
