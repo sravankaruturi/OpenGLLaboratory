@@ -1,7 +1,7 @@
 #shader vertex
 #version 330 core
 
-const int MAX_BONES = 100;
+const int MAX_BONES = 32;
 
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec2 aTexCoords;
@@ -21,31 +21,12 @@ void main() {
 
 	colour = vec4(1, 1, 1, 1);
 
-	if (aBoneIds.y > 32) {
-		/*if (aBoneIds.x > 32 || aBoneIds.y > 32 || aBoneIds.z > 32 || aBoneIds.w > 32) {*/
+	if (aBoneIds.x > 32) {
 		colour = vec4(1, 0, 0, 1);
 	}
 	else {
 		colour = vec4(0, 1, 0, 1);
 	}
-
-	/*colour = vec4(0, 0, 0, 1);*/
-
-	// The Higher the Bone Ids, the lower the colour would be., The Blacker the output would be.
-	// What we want: Lower BoneIds. and Bluer Picture.
-	/*colour.r = 1 / (aBoneIds[0] + 0.01);
-	colour.g = 1 / (aBoneIds[1] + 0.01);
-	colour.b = 1 / (aBoneIds[2] + 0.01);*/
-
-	// The Output that we get not only mean that the Lamp is bad. But also, other stuff, like the pelvis
-
-	// Make sure that all the weights add upto  1.0
-	//if (aWeights.x + aWeights.y + aWeights.z + aWeights.w < 0.9) {
-	//	colour = vec4(1, 0, 0, 1);
-	//}
-	//else {
-	//	colour = vec4(0, 1, 0, 0);
-	//}
 
 	mat4 boneTransforms = u_BoneMatrices[aBoneIds[0]] * aWeights[0];
 	boneTransforms += u_BoneMatrices[aBoneIds[1]] * aWeights[1];
@@ -64,7 +45,8 @@ void main() {
 	vec4 positionFour = vec4(aPosition, 1.0f);
 	vec4 positionLocal = boneTransforms * positionFour;
 
-	gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_ModelMatrix * positionFour;
+	// Use the Position Four because the Indices are messed up.
+	gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_ModelMatrix * positionLocal;
 
 	texCoords = aTexCoords;
 
@@ -82,6 +64,6 @@ layout(location = 0) out vec4 outColour;
 
 void main() {
 
-	outColour = mix(texture(u_Texture, texCoords), colour, 0.9);
+	outColour = mix(texture(u_Texture, texCoords), colour, 0.5);
 
 }

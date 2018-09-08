@@ -10,9 +10,11 @@
 #include "../Concepts/Concept.h"
 
 #include <map>
+#include <assimp/anim.h>
 
 #define NUM_BONES_PER_VERTEX	4
 
+struct aiAnimation;
 struct aiMesh;
 struct aiScene;
 struct aiNode;
@@ -86,6 +88,8 @@ namespace olab {
 
 		public:
 
+			const aiScene * scene;
+
 			std::map<std::string, unsigned int> boneMapping; // Maps a bone to its index in BoneInfo
 
 			std::vector<olab::concepts::BoneInfo> boneInfoData;
@@ -110,7 +114,12 @@ namespace olab {
 			const std::vector<Texture *> LoadMaterialTextures(aiMaterial * _material, aiTextureType _textureType, std::string _param3);
 
 			// This function transforms and loads the Bone's Final Matrices.
-			void BoneTransform(float _deltatime, std::vector<glm::mat4>& _matrices);
+			void BoneTransform(float _totalTime, std::vector<glm::mat4>& _matrices);
+
+			void ReadNodeHierarchyAnimation(float _animationTime, const aiNode * _node, const glm::mat4& _parentTransform);
+
+			const aiNodeAnim * FindNodeAnim(const aiAnimation * _animation, const std::string& _nodeName);
+
 		};
 
 		class ConceptSkeletalMesh : public Concept {

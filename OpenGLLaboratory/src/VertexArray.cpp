@@ -26,7 +26,14 @@ namespace olab {
 		unsigned int offset = 0;
 		for (auto element : elements) {
 			GLCall(glEnableVertexAttribArray(i));
-			GLCall(glVertexAttribPointer(i, element.count, element.type, element.normalized, _layout.GetStride(), (const void *)offset));
+
+			if (element.type == GL_UNSIGNED_INT || element.type == GL_INT) {
+				GLCall(glVertexAttribIPointer(i, element.count, element.type, _layout.GetStride(), (const void *)offset));
+			}
+			else {
+				// Check the Element Type. If it is float use the usual one. If it is int, use the new one.
+				GLCall(glVertexAttribPointer(i, element.count, element.type, element.normalized, _layout.GetStride(), (const void *)offset));
+			}
 			offset += (element.count * VertexBufferElement::GetSizeOfType(element.type));
 			i++;
 		}

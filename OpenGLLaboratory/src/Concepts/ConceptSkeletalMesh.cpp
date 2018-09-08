@@ -288,7 +288,7 @@ namespace olab {
 		{
 
 			Assimp::Importer import;
-			const aiScene *scene = import.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs);
+			this->scene = import.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs);
 
 			if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 			{
@@ -383,16 +383,12 @@ namespace olab {
 							bone_index = boneMapping[bone_name];
 						}
 
-						// TODO: The problem might lie with how the vertex ID is perceived by various meshes vs the complete model. Figure out how to fix it.
-						// TODO: White boarding/drawing might help. Of course it might help a lot if we know what the vertex ID actually is.
-						// TODO: Go through Assimp Code to deal with that as the Documentation is not helpful.
 						for (auto k = 0; k < current_mesh->mBones[j]->mNumWeights; k++) {
 
 							unsigned int vertex_id = base_vertex_index + current_mesh->mBones[j]->mWeights[k].mVertexId;
 							unsigned int local_vertex_id = current_mesh->mBones[j]->mWeights[k].mVertexId;
 							float weight = current_mesh->mBones[j]->mWeights[k].mWeight;
 
-							// Changed here from vertex_id to local_vertex_id;
 							boneWeights[local_vertex_id].AddBoneData(bone_index, weight);
 							if (bone_index > 32) {
 								__debugbreak();
@@ -437,7 +433,7 @@ namespace olab {
 				//vbl.Push<float>(3);	// Nor
 				vbl.Push<float>(2);	// Tex
 
-				vbl.Push<int>(4);	// Bone Index
+				vbl.Push<unsigned int>(4);	// Bone Index
 				vbl.Push<float>(4);	// Bone Weight
 
 				// Check for stupid bone indices
@@ -482,10 +478,17 @@ namespace olab {
 			return textures;
 		}
 
-		void SkeletalModel::BoneTransform(float _deltatime, std::vector<glm::mat4>& _matrices)
+		void SkeletalModel::BoneTransform(float _totalTime, std::vector<glm::mat4>& _matrices)
 		{
 
 			_matrices.resize(numberOfBones);
+
+			// TODO: Check if valid scene, before accessing Animations here.
+			const auto ticks_per_second = scene->mAnimations[0]->mTicksPerSecond != 0 ? scene->mAnimations[0]->mTicksPerSecond : 25.0f;
+			auto time_in_ticks = _totalTime * ticks_per_second;
+			auto animation_time = fmod(time_in_ticks, scene->mAnimations[0]->mDuration);
+
+			
 
 			// For now, set them to Identity.
 			for (auto& it : _matrices) {
@@ -494,5 +497,35 @@ namespace olab {
 
 		}
 
-}
+		void SkeletalModel::ReadNodeHierarchyAnimation(float _animationTime, const aiNode* _node,
+			const glm::mat4& _parentTransform)
+		{
+
+			std::string node_name = _node->mName.data;
+
+			const aiAnimation * p_animation = scene->mAnimations[0];
+
+			glm::mat4 node_transformation(1.0f);
+
+			convert_aimatrix_to_glm(node_transformation, _node->mTransformation);
+
+			const aiNodeAnim * node_anim = FindNodeAnim(p_animation, node_name);
+
+		}
+
+		const aiNodeAnim * SkeletalModel::FindNodeAnim(const aiAnimation * _animation, const std::string& _nodeName)
+		{
+
+			for (auto i = 0 ; i < _animation->mNumChannels; i++)
+			{
+				const aiNodeAnim * node_anim = _animation->mChannels[i];
+
+				if (std::string(node_anim->mNodeName.data) == _nodeName) {
+					return node_anim;
+				}
+			}
+
+			return nullptr;
+		}
+	}
 }
