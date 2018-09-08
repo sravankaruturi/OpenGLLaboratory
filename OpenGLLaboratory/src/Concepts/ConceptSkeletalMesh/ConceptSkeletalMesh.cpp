@@ -106,7 +106,7 @@ namespace olab {
 			ImGui::InputFloat3("Scale", glm::value_ptr(scale));
 			ImGui::Separator();
 			ImGui::Text("View Matrix");
-			ImGui::SliderFloat3("Camera Position", glm::value_ptr(cameraPosition), 0.5f, 50.0f, "%.3f", 2.0f);
+			ImGui::SliderFloat3("Camera Position", glm::value_ptr(cameraPosition), -50.0f, 100.0f, "%.3f", 2.0f);
 			ImGui::Separator();
 			ImGui::Text("Projection Matrix");
 			ImGui::SliderFloat("Field Of View", &fieldOfView, 0.5f, 90.0f, "%.3f", 2.0f);
