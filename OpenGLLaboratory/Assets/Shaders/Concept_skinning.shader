@@ -64,6 +64,6 @@ layout(location = 0) out vec4 outColour;
 
 void main() {
 
-	outColour = mix(texture(u_Texture, texCoords), colour, 0.5);
+	outColour = mix(texture(u_Texture, texCoords), colour, 0.1);
 
 }

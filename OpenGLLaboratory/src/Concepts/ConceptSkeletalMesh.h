@@ -11,6 +11,7 @@
 
 #include <map>
 #include <assimp/anim.h>
+#include <assimp/Importer.hpp>
 
 #define NUM_BONES_PER_VERTEX	4
 
@@ -86,7 +87,19 @@ namespace olab {
 			unsigned int numberOfMeshes;
 			unsigned int numberOfBones = 0;
 
+			// This Imported needs to be a class variable since We need it to last or the Scene gets empty??
+			Assimp::Importer import;
+
+			unsigned int FindScaling(float _animationTime, const aiNodeAnim* _nodeAnim);
+			unsigned int FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
+			unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
+			void CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+			void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+			void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+
 		public:
+
+			glm::mat4 globalInverseTransform;
 
 			const aiScene * scene;
 
@@ -102,7 +115,7 @@ namespace olab {
 			void LoadModel(const std::string& _filename);
 
 			// Render
-			void Render(const Renderer& _renderer);
+			void Render(float _deltaTime, const Renderer& _renderer);
 
 			// Update
 			void Update(float _deltatime);

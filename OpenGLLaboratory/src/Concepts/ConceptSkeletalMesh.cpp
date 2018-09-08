@@ -36,6 +36,28 @@ namespace olab {
 
 		}
 
+		// This just copies. This function doesn't transpose matrices.
+		void convert_aimatrix_to_glm(glm::mat4& _glmMat4, const aiMatrix3x3& _aiMatrix) {
+
+			for (auto i = 0; i < 3; i++) {
+				for (auto j = 0; j < 3; j++) {
+					_glmMat4[i][j] = _aiMatrix[i][j];
+				}
+			}
+
+			// The rest would be zero, other than the 4,4.
+			_glmMat4[0][3] = 0.0f;
+			_glmMat4[1][3] = 0.0f;
+			_glmMat4[2][3] = 0.0f;
+
+			_glmMat4[3][0] = 0.0f;
+			_glmMat4[3][1] = 0.0f;
+			_glmMat4[3][2] = 0.0f;
+
+			_glmMat4[3][3] = 1.0f;
+
+		}
+
 		ConceptSkeletalMesh::ConceptSkeletalMesh()
 			: position(0.0f, 0.0f, 0.0f),
 			rotation(0.0f, 0.0f, 0.0f),
@@ -104,7 +126,9 @@ namespace olab {
 			using_shader->setMat4("u_ViewMatrix", viewMatrix);
 			using_shader->setMat4("u_ProjectionMatrix", projectionMatrix);
 
-			this->model->Render(_renderer);
+			auto total_time = glfwGetTime();
+
+			this->model->Render(total_time, _renderer);
 
 		}
 
@@ -215,6 +239,131 @@ namespace olab {
 			assert(0);
 		}
 
+		unsigned int SkeletalModel::FindScaling(float _animationTime, const aiNodeAnim* _nodeAnim)
+		{
+			assert(_nodeAnim->mNumScalingKeys > 0);
+			for (unsigned int i = 0; i < _nodeAnim->mNumScalingKeys - 1; i++) {
+				if (_animationTime < (float)_nodeAnim->mScalingKeys[i + 1].mTime) {
+					return i;
+				}
+			}
+
+			// It should never reach here.
+			assert(0);
+			return 0;
+		}
+
+		unsigned int SkeletalModel::FindRotation(float _animationTime, const aiNodeAnim* _nodeAnim)
+		{
+			assert(_nodeAnim->mNumRotationKeys> 0);
+			for (unsigned int i = 0; i < _nodeAnim->mNumRotationKeys - 1; i++) {
+				if (_animationTime < (float)_nodeAnim->mRotationKeys[i + 1].mTime) {
+					return i;
+				}
+			}
+
+			// It should never reach here.
+			assert(0);
+			return 0;
+		}
+
+		unsigned int SkeletalModel::FindPosition(float _animationTime, const aiNodeAnim* _nodeAnim)
+		{
+			assert(_nodeAnim->mNumPositionKeys > 0);
+			for (unsigned int i = 0; i < _nodeAnim->mNumPositionKeys- 1; i++) {
+				if (_animationTime < (float)_nodeAnim->mPositionKeys[i + 1].mTime) {
+					return i;
+				}
+			}
+
+			// It should never reach here.
+			assert(0);
+			return 0;
+		}
+
+		void SkeletalModel::CalcInterpolatedPosition(aiVector3D& _out, float _animationTime, const aiNodeAnim* _nodeAnim)
+		{
+			if (_nodeAnim->mNumPositionKeys == 1) {
+				// There is only one Position.
+				_out = _nodeAnim->mPositionKeys[0].mValue;
+				return;
+			}
+
+			unsigned int position_index = FindPosition(_animationTime, _nodeAnim);
+			unsigned int next_pos_index = position_index + 1;
+			assert(next_pos_index < _nodeAnim->mNumPositionKeys);
+
+			// The Difference between two key frames.
+			float delta_time = (float)(_nodeAnim->mPositionKeys[next_pos_index].mTime - _nodeAnim->mPositionKeys[position_index].mTime);
+
+			// The Factor by which the current frame has transitioned into the next frame.
+			float factor = (_animationTime - (float)_nodeAnim->mPositionKeys[position_index].mTime) / delta_time;
+
+			assert(factor >= 0.0f && factor <= 1.0f);
+
+			const auto start = _nodeAnim->mPositionKeys[position_index].mValue;
+			const auto end = _nodeAnim->mPositionKeys[next_pos_index].mValue;
+
+			_out = start + factor * (end - start);
+
+		}
+
+		void SkeletalModel::CalcInterpolatedRotation(aiQuaternion& _out, float _animationTime, const aiNodeAnim* _nodeAnim)
+		{
+
+			if (_nodeAnim->mNumRotationKeys == 1) {
+				// There is only one Position.
+				_out = _nodeAnim->mRotationKeys[0].mValue;
+				return;
+			}
+
+			unsigned int rotation_index = FindRotation(_animationTime, _nodeAnim);
+			unsigned int next_rot_index = rotation_index + 1;
+			assert(next_rot_index < _nodeAnim->mNumRotationKeys);
+
+			// The Difference between two key frames.
+			float delta_time = (float)(_nodeAnim->mRotationKeys[next_rot_index].mTime - _nodeAnim->mRotationKeys[rotation_index].mTime);
+
+			// The Factor by which the current frame has transitioned into the next frame.
+			float factor = (_animationTime - (float)_nodeAnim->mRotationKeys[rotation_index].mTime) / delta_time;
+
+			assert(factor >= 0.0f && factor <= 1.0f);
+
+			const auto start = _nodeAnim->mRotationKeys[rotation_index].mValue;
+			const auto end = _nodeAnim->mRotationKeys[next_rot_index].mValue;
+
+			aiQuaternion::Interpolate(_out, start, end, factor);
+
+			_out = _out.Normalize();
+
+		}
+
+		void SkeletalModel::CalcInterpolatedScaling(aiVector3D& _out, float _animationTime, const aiNodeAnim* _nodeAnim)
+		{
+
+			if (_nodeAnim->mNumScalingKeys == 1) {
+				_out = _nodeAnim->mScalingKeys[0].mValue;
+				return;
+			}
+
+			auto scaling_index = FindScaling(_animationTime, _nodeAnim);
+			auto nex_sca_index = scaling_index + 1;
+
+			assert(nex_sca_index < _nodeAnim->mNumScalingKeys);
+
+			auto delta_time = (float)(_nodeAnim->mScalingKeys[nex_sca_index].mTime - _nodeAnim->mScalingKeys[scaling_index].mTime);
+
+			auto factor = (_animationTime - (float)_nodeAnim->mScalingKeys[scaling_index].mTime) / delta_time;
+
+			assert(factor >= 0.0f && factor <= 1.0f);
+
+			auto start = _nodeAnim->mScalingKeys[scaling_index].mValue;
+			auto end = _nodeAnim->mScalingKeys[nex_sca_index].mValue;
+
+			_out = start + factor * (end - start);
+
+		}
+
 		SkeletalModel::SkeletalModel(const std::string & _filename, Shader * _shader)
 		{
 			filename = _filename;
@@ -242,7 +391,7 @@ namespace olab {
 			
 		}
 
-		void SkeletalModel::Render(const Renderer& _renderer)
+		void SkeletalModel::Render(float _totalTime, const Renderer& _renderer)
 		{
 			// Render all the Meshes.
 			for (const auto& it : meshes) {
@@ -252,7 +401,7 @@ namespace olab {
 
 				// Get the Bone Matrices from the bone info.
 				std::vector<glm::mat4> bone_matrices;
-				this->BoneTransform(0.0f, bone_matrices);
+				this->BoneTransform(_totalTime, bone_matrices);
 
 				auto loc = shader->getUniformLocation("u_BoneMatrices");
 				// We transpose the matrices here because ASSIMP matrices are row major.
@@ -287,7 +436,6 @@ namespace olab {
 		void SkeletalModel::ProcessModel()
 		{
 
-			Assimp::Importer import;
 			this->scene = import.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs);
 
 			if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -295,6 +443,10 @@ namespace olab {
 				std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
 				return;
 			}
+
+			convert_aimatrix_to_glm(globalInverseTransform, scene->mRootNode->mTransformation);
+
+			globalInverseTransform = glm::inverse(globalInverseTransform);
 
 			numberOfMeshes = 0;
 
@@ -483,16 +635,18 @@ namespace olab {
 
 			_matrices.resize(numberOfBones);
 
+			glm::mat4 rootNodeMatrix(1.0f);
+
 			// TODO: Check if valid scene, before accessing Animations here.
 			const auto ticks_per_second = scene->mAnimations[0]->mTicksPerSecond != 0 ? scene->mAnimations[0]->mTicksPerSecond : 25.0f;
 			auto time_in_ticks = _totalTime * ticks_per_second;
 			auto animation_time = fmod(time_in_ticks, scene->mAnimations[0]->mDuration);
 
-			
+			ReadNodeHierarchyAnimation(animation_time, scene->mRootNode, rootNodeMatrix);
 
 			// For now, set them to Identity.
-			for (auto& it : _matrices) {
-				it = glm::mat4(1.0f);
+			for (auto i = 0; i < numberOfBones; i++) {
+				_matrices[i] = boneInfoData[i].finalTransformation;
 			}
 
 		}
@@ -510,6 +664,47 @@ namespace olab {
 			convert_aimatrix_to_glm(node_transformation, _node->mTransformation);
 
 			const aiNodeAnim * node_anim = FindNodeAnim(p_animation, node_name);
+
+			if (node_anim) {
+
+				glm::mat4 transformation_matrix(1.0f);
+
+				//// Interpolate stuff..
+				//aiVector3D scaling;
+				//CalcInterpolatedScaling(scaling, _animationTime, node_anim);
+				//transformation_matrix = glm::scale(transformation_matrix, glm::vec3(scaling.x, scaling.y, scaling.z));
+
+				//aiQuaternion rotation;
+				//CalcInterpolatedRotation(rotation, _animationTime, node_anim);
+
+				//glm::mat4 rotataion_matrix;
+				//convert_aimatrix_to_glm(rotataion_matrix, rotation.GetMatrix());
+
+				//transformation_matrix *= rotataion_matrix;
+
+				aiVector3D translation;
+				CalcInterpolatedPosition(translation, _animationTime, node_anim);
+
+				transformation_matrix = glm::translate(transformation_matrix, glm::vec3(translation.x, translation.y, translation.z));
+
+				node_transformation = transformation_matrix;
+
+			}
+
+			glm::mat4 global_transformation = node_transformation * _parentTransform;
+
+			if (boneMapping.find(node_name) != boneMapping.end()) {
+				// Update the Global Transformation.
+				auto bone_index = boneMapping[node_name];
+
+				//boneInfoData[bone_index].finalTransformation = globalInverseTransform * global_transformation * boneInfoData[bone_index].boneOffset;
+				//boneInfoData[bone_index].finalTransformation = boneInfoData[bone_index].boneOffset * global_transformation * globalInverseTransform;
+				boneInfoData[bone_index].finalTransformation = glm::mat4(1.0f);
+			}
+
+			for (auto i = 0; i < _node->mNumChildren; i++) {
+				ReadNodeHierarchyAnimation(_animationTime, _node->mChildren[i], global_transformation);
+			}
 
 		}
 
