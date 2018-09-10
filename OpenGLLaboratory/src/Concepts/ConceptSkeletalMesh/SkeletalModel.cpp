@@ -129,6 +129,10 @@ namespace olab {
 			// The Factor by which the current frame has transitioned into the next frame.
 			float factor = (_animationTime - (float)_nodeAnim->mPositionKeys[position_index].mTime) / delta_time;
 
+			if ( factor < 0.0f )
+			{
+				factor = 0.0f;
+			}
 			assert(factor >= 0.0f && factor <= 1.0f);
 
 			const auto start = _nodeAnim->mPositionKeys[position_index].mValue;
@@ -156,6 +160,11 @@ namespace olab {
 
 			// The Factor by which the current frame has transitioned into the next frame.
 			float factor = (_animationTime - (float)_nodeAnim->mRotationKeys[rotation_index].mTime) / delta_time;
+
+			if ( factor < 0.0f)
+			{
+				factor = 0.0f;
+			}
 
 			assert(factor >= 0.0f && factor <= 1.0f);
 
@@ -185,6 +194,10 @@ namespace olab {
 
 			auto factor = (_animationTime - (float)_nodeAnim->mScalingKeys[scaling_index].mTime) / delta_time;
 
+			if( factor < 0.0f)
+			{
+				factor = 0.0f;
+			}
 			assert(factor >= 0.0f && factor <= 1.0f);
 
 			auto start = _nodeAnim->mScalingKeys[scaling_index].mValue;
@@ -425,9 +438,11 @@ namespace olab {
 				vbl.Push<float>(2);	// Tex
 
 				vbl.Push<unsigned int>(4);	// Bone Index
+				vbl.Push<unsigned int>(4);	// Bone Index
+				vbl.Push<float>(4);	// Bone Weight
 				vbl.Push<float>(4);	// Bone Weight
 
-									// Check for stupid bone indices
+				// Check for stupid bone indices
 				{
 					for (auto temp = 0; temp < vertices.size(); temp++) {
 						if (vertices[temp].vbd.Ids[3] > 32) {
@@ -462,7 +477,7 @@ namespace olab {
 				_material->GetTexture(_textureType, i, &str);
 				// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
 				Texture * texture;
-				texture = new Texture((std::string("Assets/Models/boblamp/") + std::string(str.C_Str())), false);
+				texture = new Texture((std::string("Assets/Models/human/") + std::string(str.C_Str())), false);
 				textures.push_back(texture);
 			}
 

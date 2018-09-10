@@ -18,7 +18,7 @@ struct aiMesh;
 struct aiScene;
 struct aiNode;
 
-#define NUM_BONES_PER_VERTEX	4
+#define NUM_BONES_PER_VERTEX	8
 
 namespace olab {
 	namespace concepts {
@@ -32,8 +32,8 @@ namespace olab {
 		struct VertexBoneData {
 
 			// The Ids is the bone Ids.
-			unsigned int Ids[NUM_BONES_PER_VERTEX] = { 0, 0, 0, 0 };
-			float weights[NUM_BONES_PER_VERTEX] = { 0, 0, 0, 0 };
+			unsigned int Ids[NUM_BONES_PER_VERTEX] = { 0, 0, 0, 0, 0, 0, 0, 0};
+			float weights[NUM_BONES_PER_VERTEX] = { 0, 0, 0, 0 , 0, 0, 0, 0};
 
 			VertexBoneData() {
 				Reset();

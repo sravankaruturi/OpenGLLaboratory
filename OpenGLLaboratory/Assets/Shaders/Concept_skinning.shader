@@ -5,9 +5,10 @@ const int MAX_BONES = 32;
 
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec2 aTexCoords;
-//layout(location = 2) in uvec4 aBoneIds;
 layout(location = 2) in ivec4 aBoneIds;
-layout(location = 3) in vec4 aWeights;
+layout(location = 3) in ivec4 aBoneIds2;
+layout(location = 4) in vec4 aWeights;
+layout(location = 5) in vec4 aWeights2;
 
 uniform mat4 u_ModelMatrix;
 uniform mat4 u_ViewMatrix;
@@ -32,6 +33,11 @@ void main() {
 	boneTransforms += u_BoneMatrices[aBoneIds[1]] * aWeights[1];
 	boneTransforms += u_BoneMatrices[aBoneIds[2]] * aWeights[2];
 	boneTransforms += u_BoneMatrices[aBoneIds[3]] * aWeights[3];
+
+	boneTransforms += u_BoneMatrices[aBoneIds2[0]] * aWeights2[0];
+	boneTransforms += u_BoneMatrices[aBoneIds2[1]] * aWeights2[1];
+	boneTransforms += u_BoneMatrices[aBoneIds2[2]] * aWeights2[2];
+	boneTransforms += u_BoneMatrices[aBoneIds2[3]] * aWeights2[3];
 
 	//colour = vec3(1.0);
 
