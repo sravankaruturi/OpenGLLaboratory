@@ -77,8 +77,8 @@ int main(int _argc, char* _argv[])
 	// We Draw the Current Test and we want to start with the Menu usually.
 	 current_concept = concepts_menu;
 
-	const auto concepts_size = concepts_menu->concepts.size();
-	current_concept = concepts_menu->concepts[concepts_size - 1].second();
+	//const auto concepts_size = concepts_menu->concepts.size();
+	//current_concept = concepts_menu->concepts[concepts_size - 1].second();
 
 	std::cout << glGetString(GL_VERSION) << std::endl;
 

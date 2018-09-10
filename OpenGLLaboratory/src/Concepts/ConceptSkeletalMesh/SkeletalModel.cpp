@@ -204,7 +204,17 @@ namespace olab {
 
 		SkeletalModel::~SkeletalModel()
 		{
+			for ( auto& it : meshes)
+			{
+				for ( auto& itit: it.textures)
+				{
+					delete itit;
+				}
 
+				delete it.ib;
+				delete it.va;
+				delete it.vb;
+			}
 		}
 
 		void SkeletalModel::LoadModel(const std::string & _filename)

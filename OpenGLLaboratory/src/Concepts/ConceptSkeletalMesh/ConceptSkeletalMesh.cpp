@@ -61,7 +61,7 @@ namespace olab {
 			model = new SkeletalModel(path, skinningShader);
 
 			this->position = glm::vec3(0, 0, 0);
-			this->rotation = glm::vec3(90, 180, 180);
+			this->rotation = glm::vec3(90, 0, 0);
 			this->scale = glm::vec3(0.2, 0.2, 0.2);
 
 			this->cameraPosition = glm::vec3(0, 6, 22);
@@ -70,6 +70,7 @@ namespace olab {
 
 		ConceptSkeletalMesh::~ConceptSkeletalMesh()
 		{
+			delete skinningShader;
 			delete model;
 		}
 
