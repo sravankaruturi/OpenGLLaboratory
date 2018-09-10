@@ -27,6 +27,12 @@ namespace olab {
 
 		}
 
+		glm::mat4 get_glm_matrix(const aiMatrix4x4& _aiMatrix) {
+			glm::mat4 return_matrix;
+			convert_aimatrix_to_glm(return_matrix, _aiMatrix);
+			return return_matrix;
+		}
+
 		// This just copies. This function doesn't transpose matrices.
 		void convert_aimatrix_to_glm(glm::mat4& _glmMat4, const aiMatrix3x3& _aiMatrix) {
 
@@ -268,8 +274,7 @@ namespace olab {
 				return;
 			}
 
-			globalInverseTransform = glm::mat4(1.0f);
-			convert_aimatrix_to_glm(globalInverseTransform, scene->mRootNode->mTransformation);
+			globalInverseTransform = scene->mRootNode->mTransformation;
 
 			numberOfMeshes = 0;
 
@@ -348,10 +353,7 @@ namespace olab {
 							boneInfoData.push_back(bi);
 
 							// We set the bone offset matrix
-							convert_aimatrix_to_glm(boneInfoData[bone_index].boneOffset, current_mesh->mBones[j]->mOffsetMatrix);
-
-							// Transpose it. Since, Assimp uses the Row Major Order.
-							boneInfoData[bone_index].boneOffset = glm::transpose(boneInfoData[bone_index].boneOffset);
+							boneInfoData[bone_index].boneOffset = current_mesh->mBones[j]->mOffsetMatrix;
 
 							// Add that to the mapping
 							boneMapping[bone_name] = bone_index;
@@ -475,7 +477,7 @@ namespace olab {
 
 			// For now, set them to Identity.
 			for (auto i = 0; i < numberOfBones; i++) {
-				_matrices[i] = boneInfoData[i].finalTransformation;
+				_matrices[i] = glm::transpose(get_glm_matrix(boneInfoData[i].finalTransformation));
 			}
 
 		}
@@ -497,45 +499,36 @@ namespace olab {
 				//glm::mat4 transformation_matrix(1.0f);
 
 				aiMatrix4x4 translation_matrix;
-				aiMatrix3x3 rotation_matrix_temp;
-				aiMatrix4x4 rotation_matrix;
 				aiMatrix4x4 scaling_matrix;
 
 				aiVector3D translation;
 				CalcInterpolatedPosition(translation, _animationTime, node_anim);
 
-				translation_matrix = translation_matrix.Translation(translation, translation_matrix);
+				translation_matrix = aiMatrix4x4::Translation(translation, translation_matrix);
 
 				aiQuaternion rotation;
 				CalcInterpolatedRotation(rotation, _animationTime, node_anim);
 
-				// Transpose the matrix after this.
-				rotation_matrix_temp = rotation.GetMatrix();
-				rotation_matrix = aiMatrix4x4(rotation_matrix_temp);
-				//rotation_matrix = glm::transpose(rotation_matrix);
+				const aiMatrix4x4 rotation_matrix = aiMatrix4x4(rotation.GetMatrix());
 
 				aiVector3D scaling;
 				CalcInterpolatedScaling(scaling, _animationTime, node_anim);
-				scaling_matrix = scaling_matrix.Scaling(scaling, scaling_matrix);
+				scaling_matrix = aiMatrix4x4::Scaling(scaling, scaling_matrix);
 
 				//node_transformation = scaling_matrix * rotation_matrix * translation_matrix;
 				node_transformation = translation_matrix * rotation_matrix * scaling_matrix;
 
 			}
 
-			aiMatrix4x4 global_transformation = _parentTransform * node_transformation;
+			const aiMatrix4x4 global_transformation = _parentTransform * node_transformation;
 
 			if (boneMapping.find(node_name) != boneMapping.end()) {
 
 				// Update the Global Transformation.
 				auto bone_index = boneMapping[node_name];
 
-				glm::mat4 global_trans_glm(1.0f);
-				load_transposed_aimatrix(global_trans_glm, global_transformation);
-
-				//boneInfoData[bone_index].finalTransformation = globalInverseTransform * global_transformation * boneInfoData[bone_index].boneOffset;
-				boneInfoData[bone_index].finalTransformation = boneInfoData[bone_index].boneOffset * global_trans_glm * globalInverseTransform;
-				//boneInfoData[bone_index].finalTransformation = globalInverseTransform;
+				boneInfoData[bone_index].finalTransformation = globalInverseTransform * global_transformation * boneInfoData[bone_index].boneOffset;
+				//boneInfoData[bone_index].finalTransformation = boneInfoData[bone_index].boneOffset * global_transformation * globalInverseTransform;
 			}
 
 			for (auto i = 0; i < _node->mNumChildren; i++) {

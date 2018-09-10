@@ -23,6 +23,16 @@ namespace olab {
 			}
 		}
 
+		void display_matrix_in_imgui(const aiMatrix4x4& _mat) {
+			for (auto i = 0; i < 4; i++) {
+				for (auto j = 0; j < 4; j++) {
+					ImGui::Text("%.2f ", _mat[i][j]);
+					ImGui::SameLine();
+				}
+				ImGui::Text("\n");
+			}
+		}
+
 		ConceptSkeletalMesh::ConceptSkeletalMesh()
 			: position(0.0f, 0.0f, 0.0f),
 			rotation(0.0f, 0.0f, 0.0f),

@@ -24,8 +24,8 @@ namespace olab {
 	namespace concepts {
 
 		struct BoneInfo {
-			glm::mat4 boneOffset;
-			glm::mat4 finalTransformation;
+			aiMatrix4x4 boneOffset;
+			aiMatrix4x4 finalTransformation;
 		};
 
 		// The Bone Data for a specific vertex. It would ass the Indices of the Bones from the Bone Info Structure, and the Weight of each bone.
@@ -98,7 +98,7 @@ namespace olab {
 
 		public:
 
-			glm::mat4 globalInverseTransform;
+			aiMatrix4x4 globalInverseTransform;
 
 			const aiScene * scene;
 
