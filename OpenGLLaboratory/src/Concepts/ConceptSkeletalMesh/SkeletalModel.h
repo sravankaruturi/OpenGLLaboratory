@@ -110,6 +110,8 @@ namespace olab {
 
 			Shader * shader;
 
+			unsigned int selectedAnimationIndex = 0;
+
 			explicit SkeletalModel(const std::string &filename, Shader * _shader);
 			~SkeletalModel();
 

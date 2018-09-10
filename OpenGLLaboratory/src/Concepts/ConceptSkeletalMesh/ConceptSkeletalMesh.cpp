@@ -5,8 +5,8 @@
 
 #include <glm/gtc/matrix_transform.inl>
 #include "../../../external_files/ImGUI/imgui.h"
-
 #include <GLFW/glfw3.h>
+#include <assimp/scene.h>
 
 #include "../../Configuration.h"
 
@@ -51,9 +51,10 @@ namespace olab {
 			projectionMatrix = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.f, 100.f);
 
 #if !IS_HOME_PC
-			const std::string path = "Z:/IGMProfile/Desktop/Projects/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/boblamp/boblampclean.md5mesh";
+			//const std::string path = "Z:/IGMProfile/Desktop/Projects/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/boblamp/boblampclean.md5mesh";
 			//const std::string path = "Z:/IGMProfile/Desktop/Projects/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/human/BaseMesh_Anim_Walk.dae";
 			//const std::string path = "Z:/IGMProfile/Desktop/Projects/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/cube/cube_rig.dae";
+			const std::string path = "Z:/IGMProfile/Desktop/Projects/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/deer/deer.dae";
 #else
 			const std::string path = "C:/dev/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/boblamp/boblampclean.md5mesh";
 #endif
@@ -126,6 +127,16 @@ namespace olab {
 
 			ImGui::Separator();
 
+			for ( auto i = 0 ; i < model->scene->mNumAnimations; i++)
+			{
+				if ( ImGui::Button( std::string(std::string(model->scene->mAnimations[i]->mName.data) + std::string("##") + std::to_string(i)).c_str()))
+				{
+					this->model->selectedAnimationIndex = i;
+				}
+			}
+
+			ImGui::Separator();
+
 			if (ImGui::Button( (!showBoneWindow) ? "Show Bone mapping" : "Hide Bone Mapping")) {
 				this->showBoneWindow = !showBoneWindow;
 			}
@@ -137,6 +148,8 @@ namespace olab {
 			if (ImGui::Button((!showBoneDataPerMesh) ? "Show Vertex Data for the Lamp" : "Hide Vertex Data for the Lamp")) {
 				this->showBoneDataPerMesh = !showBoneDataPerMesh;
 			}
+
+			ImGui::Separator();
 
 			if (this->showBoneInfoWindow) {
 

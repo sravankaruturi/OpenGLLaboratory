@@ -498,9 +498,9 @@ namespace olab {
 			
 
 			// TODO: Check if valid scene, before accessing Animations here.
-			const auto ticks_per_second = scene->mAnimations[0]->mTicksPerSecond != 0 ? scene->mAnimations[0]->mTicksPerSecond : 25.0f;
+			const auto ticks_per_second = scene->mAnimations[selectedAnimationIndex]->mTicksPerSecond != 0 ? scene->mAnimations[0]->mTicksPerSecond : 25.0f;
 			auto time_in_ticks = _totalTime * ticks_per_second;
-			auto animation_time = fmod(time_in_ticks, scene->mAnimations[0]->mDuration);
+			auto animation_time = fmod(time_in_ticks, scene->mAnimations[selectedAnimationIndex]->mDuration);
 
 			ReadNodeHierarchyAnimation(animation_time, scene->mRootNode, root_node_matrix);
 
@@ -517,7 +517,7 @@ namespace olab {
 
 			std::string node_name = _node->mName.data;
 
-			const aiAnimation * p_animation = scene->mAnimations[0];
+			const aiAnimation * p_animation = scene->mAnimations[selectedAnimationIndex];
 
 			aiMatrix4x4 node_transformation = _node->mTransformation;
 
