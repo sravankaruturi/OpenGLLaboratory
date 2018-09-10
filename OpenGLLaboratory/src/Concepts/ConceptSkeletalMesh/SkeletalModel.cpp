@@ -129,10 +129,11 @@ namespace olab {
 			// The Factor by which the current frame has transitioned into the next frame.
 			float factor = (_animationTime - (float)_nodeAnim->mPositionKeys[position_index].mTime) / delta_time;
 
-			if ( factor < 0.0f )
-			{
-				factor = 0.0f;
-			}
+			//if ( factor < 0.0f )
+			//{
+			//	factor = 0.0f;
+			//}
+
 			assert(factor >= 0.0f && factor <= 1.0f);
 
 			const auto start = _nodeAnim->mPositionKeys[position_index].mValue;
@@ -161,10 +162,10 @@ namespace olab {
 			// The Factor by which the current frame has transitioned into the next frame.
 			float factor = (_animationTime - (float)_nodeAnim->mRotationKeys[rotation_index].mTime) / delta_time;
 
-			if ( factor < 0.0f)
-			{
-				factor = 0.0f;
-			}
+			//if ( factor < 0.0f)
+			//{
+			//	factor = 0.0f;
+			//}
 
 			assert(factor >= 0.0f && factor <= 1.0f);
 
@@ -194,10 +195,10 @@ namespace olab {
 
 			auto factor = (_animationTime - (float)_nodeAnim->mScalingKeys[scaling_index].mTime) / delta_time;
 
-			if( factor < 0.0f)
-			{
-				factor = 0.0f;
-			}
+			//if( factor < 0.0f)
+			//{
+			//	factor = 0.0f;
+			//}
 			assert(factor >= 0.0f && factor <= 1.0f);
 
 			auto start = _nodeAnim->mScalingKeys[scaling_index].mValue;
@@ -210,6 +211,9 @@ namespace olab {
 		SkeletalModel::SkeletalModel(const std::string & _filename, Shader * _shader)
 		{
 			filename = _filename;
+
+			directory = _filename.substr(0, _filename.find_last_of('/'));;
+
 			this->shader = _shader;
 			this->LoadModel(this->filename);
 
@@ -477,7 +481,7 @@ namespace olab {
 				_material->GetTexture(_textureType, i, &str);
 				// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
 				Texture * texture;
-				texture = new Texture((std::string("Assets/Models/human/") + std::string(str.C_Str())), false);
+				texture = new Texture((directory + '/' + std::string(str.C_Str())), false);
 				textures.push_back(texture);
 			}
 

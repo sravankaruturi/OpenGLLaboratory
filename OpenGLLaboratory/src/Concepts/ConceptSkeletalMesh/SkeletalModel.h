@@ -74,6 +74,8 @@ namespace olab {
 		class SkeletalModel {
 
 			std::string filename;
+
+			std::string directory;
 		public:
 			std::vector<SkeletalMesh> meshes;
 
