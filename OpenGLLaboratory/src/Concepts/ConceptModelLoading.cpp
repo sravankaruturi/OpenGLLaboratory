@@ -103,7 +103,8 @@ namespace olab
 				mat->GetTexture(type, i, &str);
 				// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
 				Texture * texture;
-				texture = new Texture((std::string("Assets/Models/boblamp/") + std::string(str.C_Str())), false);
+				//texture = new Texture((std::string("Assets/Models/boblamp/") + std::string(str.C_Str())), false);
+				texture = new Texture((std::string("C:/Users/Sravan\ Karuturi/Desktop/Blender\ Exports/") + std::string(str.C_Str())), false);
 				textures.push_back(texture);
 			}
 
@@ -114,7 +115,8 @@ namespace olab
 		{
 
 #if IS_HOME_PC
-			std::string path = "C:/dev/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/nanosuit/nanosuit.obj";
+			//std::string path = "C:/dev/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/nanosuit/nanosuit.obj";
+			std::string path = "C:/Users/Sravan\ Karuturi/Desktop/Blender\ Exports/BendyCube.dae";
 #else 
 			std::string path = "Z:/IGMProfile/Desktop/Projects/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/nanosuit/nanosuit.obj";
 #endif

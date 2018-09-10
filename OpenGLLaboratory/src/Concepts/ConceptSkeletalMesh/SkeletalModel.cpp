@@ -14,9 +14,16 @@ namespace olab {
 
 			for (auto i = 0; i < 4; i++) {
 				for (auto j = 0; j < 4; j++) {
-					_glmMat4[i][j] = _aiMatrix[j][i];
+					_glmMat4[i][j] = _aiMatrix[i][j];
 				}
 			}
+
+		}
+
+		void load_transposed_aimatrix(glm::mat4& _glmMat4, const aiMatrix4x4& _aiMatrix) {
+
+			convert_aimatrix_to_glm(_glmMat4, _aiMatrix);
+			_glmMat4 = glm::transpose(_glmMat4);
 
 		}
 
@@ -25,7 +32,7 @@ namespace olab {
 
 			for (auto i = 0; i < 3; i++) {
 				for (auto j = 0; j < 3; j++) {
-					_glmMat4[i][j] = _aiMatrix[j][i];
+					_glmMat4[i][j] = _aiMatrix[i][j];
 				}
 			}
 
@@ -261,9 +268,8 @@ namespace olab {
 				return;
 			}
 
+			globalInverseTransform = glm::mat4(1.0f);
 			convert_aimatrix_to_glm(globalInverseTransform, scene->mRootNode->mTransformation);
-
-			globalInverseTransform = glm::inverse(globalInverseTransform);
 
 			numberOfMeshes = 0;
 
@@ -344,6 +350,9 @@ namespace olab {
 							// We set the bone offset matrix
 							convert_aimatrix_to_glm(boneInfoData[bone_index].boneOffset, current_mesh->mBones[j]->mOffsetMatrix);
 
+							// Transpose it. Since, Assimp uses the Row Major Order.
+							boneInfoData[bone_index].boneOffset = glm::transpose(boneInfoData[bone_index].boneOffset);
+
 							// Add that to the mapping
 							boneMapping[bone_name] = bone_index;
 
@@ -354,15 +363,16 @@ namespace olab {
 
 						for (auto k = 0; k < current_mesh->mBones[j]->mNumWeights; k++) {
 
-							unsigned int vertex_id = base_vertex_index + current_mesh->mBones[j]->mWeights[k].mVertexId;
+							// unsigned int vertex_id = base_vertex_index + current_mesh->mBones[j]->mWeights[k].mVertexId;
 							unsigned int local_vertex_id = current_mesh->mBones[j]->mWeights[k].mVertexId;
 							float weight = current_mesh->mBones[j]->mWeights[k].mWeight;
 
 							boneWeights[local_vertex_id].AddBoneData(bone_index, weight);
+
+							// Max number of Joints in the File.
 							if (bone_index > 32) {
 								__debugbreak();
 							}
-							//vertices[local_vertex_id].vbd = boneWeights[local_vertex_id];
 
 						}
 
@@ -452,14 +462,16 @@ namespace olab {
 
 			_matrices.resize(numberOfBones);
 
-			glm::mat4 rootNodeMatrix(1.0f);
+			// Should be set to Identity by default.
+			aiMatrix4x4 root_node_matrix;
+			
 
 			// TODO: Check if valid scene, before accessing Animations here.
 			const auto ticks_per_second = scene->mAnimations[0]->mTicksPerSecond != 0 ? scene->mAnimations[0]->mTicksPerSecond : 25.0f;
 			auto time_in_ticks = _totalTime * ticks_per_second;
 			auto animation_time = fmod(time_in_ticks, scene->mAnimations[0]->mDuration);
 
-			ReadNodeHierarchyAnimation(animation_time, scene->mRootNode, rootNodeMatrix);
+			ReadNodeHierarchyAnimation(animation_time, scene->mRootNode, root_node_matrix);
 
 			// For now, set them to Identity.
 			for (auto i = 0; i < numberOfBones; i++) {
@@ -469,16 +481,14 @@ namespace olab {
 		}
 
 		void SkeletalModel::ReadNodeHierarchyAnimation(float _animationTime, const aiNode* _node,
-			const glm::mat4& _parentTransform)
+			const aiMatrix4x4& _parentTransform)
 		{
 
 			std::string node_name = _node->mName.data;
 
 			const aiAnimation * p_animation = scene->mAnimations[0];
 
-			glm::mat4 node_transformation(1.0f);
-
-			convert_aimatrix_to_glm(node_transformation, _node->mTransformation);
+			aiMatrix4x4 node_transformation = _node->mTransformation;
 
 			const aiNodeAnim * node_anim = FindNodeAnim(p_animation, node_name);
 
@@ -486,40 +496,46 @@ namespace olab {
 
 				//glm::mat4 transformation_matrix(1.0f);
 
-				glm::mat4 translation_matrix(1.0f);
-				glm::mat4 rotation_matrix(1.0f);
-				glm::mat4 scaling_matrix(1.0f);
+				aiMatrix4x4 translation_matrix;
+				aiMatrix3x3 rotation_matrix_temp;
+				aiMatrix4x4 rotation_matrix;
+				aiMatrix4x4 scaling_matrix;
 
 				aiVector3D translation;
 				CalcInterpolatedPosition(translation, _animationTime, node_anim);
 
-				translation_matrix = glm::translate(translation_matrix, glm::vec3(translation.x, translation.y, translation.z));
+				translation_matrix = translation_matrix.Translation(translation, translation_matrix);
 
 				aiQuaternion rotation;
 				CalcInterpolatedRotation(rotation, _animationTime, node_anim);
 
-				convert_aimatrix_to_glm(rotation_matrix, rotation.GetMatrix());
+				// Transpose the matrix after this.
+				rotation_matrix_temp = rotation.GetMatrix();
+				rotation_matrix = aiMatrix4x4(rotation_matrix_temp);
+				//rotation_matrix = glm::transpose(rotation_matrix);
 
 				aiVector3D scaling;
 				CalcInterpolatedScaling(scaling, _animationTime, node_anim);
-				scaling_matrix = glm::scale(scaling_matrix, glm::vec3(scaling.x, scaling.y, scaling.z));
+				scaling_matrix = scaling_matrix.Scaling(scaling, scaling_matrix);
 
 				//node_transformation = scaling_matrix * rotation_matrix * translation_matrix;
 				node_transformation = translation_matrix * rotation_matrix * scaling_matrix;
 
 			}
 
-			glm::mat4 global_transformation =  _parentTransform * node_transformation;
+			aiMatrix4x4 global_transformation = _parentTransform * node_transformation;
 
 			if (boneMapping.find(node_name) != boneMapping.end()) {
 
 				// Update the Global Transformation.
 				auto bone_index = boneMapping[node_name];
 
+				glm::mat4 global_trans_glm(1.0f);
+				load_transposed_aimatrix(global_trans_glm, global_transformation);
+
 				//boneInfoData[bone_index].finalTransformation = globalInverseTransform * global_transformation * boneInfoData[bone_index].boneOffset;
-				//boneInfoData[bone_index].finalTransformation = boneInfoData[bone_index].boneOffset * global_transformation * globalInverseTransform;
-				boneInfoData[bone_index].finalTransformation = boneInfoData[bone_index].boneOffset * global_transformation * globalInverseTransform;
-				//boneInfoData[bone_index].finalTransformation = glm::mat4(1.0f);
+				boneInfoData[bone_index].finalTransformation = boneInfoData[bone_index].boneOffset * global_trans_glm * globalInverseTransform;
+				//boneInfoData[bone_index].finalTransformation = globalInverseTransform;
 			}
 
 			for (auto i = 0; i < _node->mNumChildren; i++) {

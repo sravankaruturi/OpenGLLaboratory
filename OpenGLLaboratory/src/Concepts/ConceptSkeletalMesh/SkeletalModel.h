@@ -128,7 +128,7 @@ namespace olab {
 			// This function transforms and loads the Bone's Final Matrices.
 			void BoneTransform(float _totalTime, std::vector<glm::mat4>& _matrices);
 
-			void ReadNodeHierarchyAnimation(float _animationTime, const aiNode * _node, const glm::mat4& _parentTransform);
+			void ReadNodeHierarchyAnimation(float _animationTime, const aiNode * _node, const aiMatrix4x4& _parentTransform);
 
 			const aiNodeAnim * FindNodeAnim(const aiAnimation * _animation, const std::string& _nodeName);
 
