@@ -104,7 +104,7 @@ namespace olab
 				// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
 				Texture * texture;
 				//texture = new Texture((std::string("Assets/Models/boblamp/") + std::string(str.C_Str())), false);
-				texture = new Texture((std::string("C:/Users/Sravan\ Karuturi/Desktop/Blender\ Exports/") + std::string(str.C_Str())), false);
+				texture = new Texture(std::string(directory + '/' + str.C_Str()), false);
 				textures.push_back(texture);
 			}
 
@@ -137,7 +137,7 @@ namespace olab
 			}
 
 			// We only have one instance of it.
-			//delete meshes[0].shader;
+			delete meshes[0].shader;
 		}
 
 		void ConceptModelLoading::LoadMesh(std::string _path)
@@ -151,7 +151,7 @@ namespace olab
 				std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
 				return;
 			}
-			std::string directory = _path.substr(0, _path.find_last_of('/'));
+			directory = _path.substr(0, _path.find_last_of('/'));
 
 			ProcessNode(scene->mRootNode, scene);
 

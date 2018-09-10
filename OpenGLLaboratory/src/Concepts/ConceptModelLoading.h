@@ -35,6 +35,8 @@ namespace olab
 			ConceptModelLoading::Mesh ProcessMesh(aiMesh *mesh, const aiScene *scene);
 			std::vector<Texture*> LoadMaterialTextures(aiMaterial *_mat, aiTextureType _type, std::string _typeName);
 
+			std::string directory;
+
 		public:
 			ConceptModelLoading();
 			~ConceptModelLoading();

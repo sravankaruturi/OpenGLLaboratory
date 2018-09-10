@@ -81,9 +81,9 @@ namespace olab {
 		private:
 			bool showSkeleton = false;
 
-			unsigned int numberOfVertices;
-			unsigned int numberOfIndices;
-			unsigned int numberOfMeshes;
+			unsigned int numberOfVertices = 0;
+			unsigned int numberOfIndices = 0;
+			unsigned int numberOfMeshes = 0;
 			unsigned int numberOfBones = 0;
 
 			// This Imported needs to be a class variable since We need it to last or the Scene gets empty??
