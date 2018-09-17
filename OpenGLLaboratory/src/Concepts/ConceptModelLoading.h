@@ -4,6 +4,7 @@
 #include "../VertexBufferLayout.h"
 #include "../Texture.h"
 #include <assimp/material.h>
+#include <glm/mat4x4.hpp>
 
 struct aiMaterial;
 struct aiMesh;
@@ -29,6 +30,20 @@ namespace olab
 				Shader * shader;
 			};
 
+			glm::vec3 position;
+			glm::vec3 rotation;
+			glm::vec3 scale;
+
+			glm::mat4 modelMatrix;
+
+			glm::vec3 cameraPosition;
+			glm::vec3 cameraFront;
+			glm::vec3 worldUp;
+			glm::mat4 viewMatrix;
+
+			float fieldOfView;
+			glm::mat4 projectionMatrix;
+
 			std::vector<ConceptModelLoading::Mesh> meshes;
 
 			void ProcessNode(aiNode *node, const aiScene *scene);
@@ -44,6 +59,7 @@ namespace olab
 			void LoadMesh(std::string _path);
 
 			virtual void OnRender(const Renderer& _renderer) override;
+			void OnUpdate(float _deltaTime) override;
 			virtual void OnImGuiRender() override;
 
 		};

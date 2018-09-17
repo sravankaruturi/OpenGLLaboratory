@@ -11,6 +11,7 @@
 #include <glm/gtc/matrix_transform.inl>
 
 #include "../Configuration.h"
+#include "../../external_files/ImGUI/imgui.h"
 
 namespace olab
 {
@@ -112,15 +113,24 @@ namespace olab
 		}
 
 		ConceptModelLoading::ConceptModelLoading()
+			: position(0.0f, 0.0f, 0.0f),
+			rotation(0.0f, 0.0f, 0.0f),
+			scale(1.0f, 1.0f, 1.0f),
+			modelMatrix(glm::mat4(1.0f)),
+			worldUp(0.0f, 1.0f, 0.0f),
+			fieldOfView(45.0f),
+			cameraFront(0, 0, -1)
 		{
 
 #if IS_HOME_PC
 			//std::string path = "C:/dev/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/nanosuit/nanosuit.obj";
-			std::string path = "C:/Users/Sravan\ Karuturi/Desktop/Blender\ Exports/BendyCube.dae";
+			std::string path = "C:/dev/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/boblamp/boblampclean.md5mesh";
 #else 
 			std::string path = "Z:/IGMProfile/Desktop/Projects/OpenGLLaboratory/OpenGLLaboratory/Assets/Models/nanosuit/nanosuit.obj";
 #endif
 			this->LoadMesh(path);
+
+			//this->scale = glm::vec3(0.2f);
 			
 		}
 
@@ -175,6 +185,10 @@ namespace olab
 			{
 				it.shader->use();
 				it.shader->setInt("u_Texture", 0);
+				it.shader->setMat4("u_ModelMatrix", modelMatrix);
+				it.shader->setMat4("u_ViewMatrix", viewMatrix);
+				it.shader->setMat4("u_ProjectionMatrix", projectionMatrix);
+
 				if ( it.textures.size() > 0)
 				{
 					it.textures[0]->Bind(0);
@@ -189,9 +203,35 @@ namespace olab
 			}
 		}
 
+		void ConceptModelLoading::OnUpdate(float _deltaTime)
+		{
+
+			modelMatrix = glm::translate(glm::mat4(1.0f), position);
+			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+			modelMatrix = glm::scale(modelMatrix, scale);
+
+			viewMatrix = glm::lookAt(cameraPosition, cameraPosition + cameraFront, worldUp);
+
+			projectionMatrix = glm::perspective(glm::radians(fieldOfView), 16.0f / 9.0f, 0.1f, 100.f);
+
+		}
+
 		void ConceptModelLoading::OnImGuiRender()
 		{
 			
+			ImGui::Text("Model Matrix");
+			ImGui::SliderFloat3("Position", glm::value_ptr(position), -5.0f, 5.0f, "%.3f", 2.0f);
+			ImGui::SliderFloat3("Rotation", glm::value_ptr(rotation), -90.0f, 90.0f, "%.3f", 0.25f);
+			ImGui::SliderFloat3("Scale", glm::value_ptr(scale), 0.2f, 2.0f, "%.3f", 0.25f);
+			ImGui::Separator();
+			ImGui::Text("View Matrix");
+			ImGui::SliderFloat3("Camera Position", glm::value_ptr(cameraPosition), -50.0f, 50.0f, "%.3f", 2.0f);
+			ImGui::Separator();
+			ImGui::Text("Projection Matrix");
+			ImGui::SliderFloat("Field Of View", &fieldOfView, 0.5f, 90.0f, "%.3f", 2.0f);
+
 		}
 
 	}
